@@ -1,14 +1,19 @@
- /** @file
-    Interface of parser.
-
- */
-
 #ifndef PARSE_H
 #define PARSE_H
 
+#define MAX_ARGUMENTS_COUNT 7
+
+enum command_type {
+    INIT,
+    MOVE,
+    PRODUCE_KNIGHT,
+    PRODUCE_PEASANT,
+    END_TURN
+};
+
 typedef struct def_command {
-    char name[16];
-    int data[7];
+    enum command_type type;
+    int arguments[MAX_ARGUMENTS_COUNT];
 } command;
 
 

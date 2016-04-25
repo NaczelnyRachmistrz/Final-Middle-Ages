@@ -20,7 +20,7 @@ set(SOURCE_FILES
         src/engine.h
         src/middle_ages.c
         src/parse.c
-        src/parse.h)
+        src/parse.h src/units.h src/units.c)
 
 add_executable(middle_ages ${SOURCE_FILES})
 
