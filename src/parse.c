@@ -1,42 +1,98 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "parse.h"
 
-#define MAX_COMMAND_LENGTH 101
-
 static const char *commands[] = {
-        "INIT",
-        "MOVE",
-        "PRODUCE_KNIGHT",
-        "PRODUCE_PEASANT",
-        "END_TURN"
+    "INVALID_INPUT",
+    "INIT",
+    "MOVE",
+    "PRODUCE_KNIGHT",
+    "PRODUCE_PEASANT",
+    "END_TURN"
 };
 
-command* parse_command() {
-    char* command_name = read_input();
+static void copyArray(int ** toArray, int ** fromArray, int count) {
+    while (count > 0) {
+        count--;
+        *toArray[count] = *fromArray[count];
+    }
 }
 
-char* read_input() {
-    size_t buffer_size = MAX_COMMAND_LENGTH;
+Command * newCommand(enum CommandType type, int * args, int argc) {
+    Command * command = (Command *) malloc(sizeof(struct DefCommand));
+    command->type = type;
+    copyArray(&command->arguments, &args, argc);
+    return command;
+}
+
+void removeCommand(Command * command) {
+    free(command);
+}
+
+static char* readLine() {
     size_t length = 0;
+    size_t bufferSize = MAX_COMMAND_LENGTH + 2;
+    char * buffer = malloc(sizeof(char) * bufferSize);
 
-    char *buffer;
-    int input;
+    int character;
 
-    buffer = realloc(NULL, sizeof(char) * buffer_size);
-    if (!buffer) {
-        return buffer;
+    while (EOF != (character = fgetc(stdin)) && character != '\n') {
+        if (length == bufferSize){
+            continue;
+        }
+        buffer[length++] = character;
     }
 
-    while ((input = fgetc(stdin)) != EOF && input != '\n') {
-        buffer[length++] = input;
-        if (length == buffer_size){
-            buffer = realloc(buffer, sizeof(char) * (buffer_size += 16));
-            if (!buffer) {
-                return buffer;
-            }
+    buffer[length++] = '\0';
+    return (char *) realloc(buffer, sizeof(char) * length);
+}
+
+static int parseCommandType(char *text, enum CommandType * commandType) {
+    for (int i = 0; i < COMMANDS_COUNT; i++) {
+        if (strcmp(commands[i], text) == 0) {
+            *commandType = (enum CommandType) i;
+            return 0;
         }
     }
-    buffer[length++] = '\0';
-    return realloc(buffer, sizeof(char) * length);
+    return 1;
+}
+
+static int parseCommandArguments(char *text, int ** commandArguments, int * commandArgumentsCount) {
+    printf("ARGUMENTS [%s]\n", text);
+    return 1;
+}
+
+static Command * parseCommand(char * text) {
+    enum CommandType commandType;
+    int commandArguments[MAX_ARGUMENTS_COUNT];
+    int commandArgumentsCount;
+
+    char * commandText = (char *) malloc(sizeof(char) * MAX_COMMAND_LENGTH);
+    char * commandArgumentsText = (char *) malloc(sizeof(char) * MAX_COMMAND_LENGTH);
+
+    if (sscanf(text, "%s%[^\n]", commandText, commandArgumentsText) != 2) {
+        return newCommand(INVALID, NULL, 0);
+    }
+
+    if (parseCommandType(commandText, &commandType)) {
+        return newCommand(INVALID, NULL, 0);
+    }
+
+    if (parseCommandArguments(commandArgumentsText, &commandArguments, &commandArgumentsCount)) {
+        return newCommand(INVALID, NULL, 0);
+    }
+
+    Command * command = newCommand(commandType, commandArguments, commandArgumentsCount);
+
+    free(text);
+    free(commandText);
+    free(commandArgumentsText);
+
+    return command;
+}
+
+Command* getCommandFromInput() {
+    char * commandText = readLine();
+    return parseCommand(commandText);
 }

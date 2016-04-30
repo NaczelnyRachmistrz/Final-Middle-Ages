@@ -1,25 +1,27 @@
 #ifndef PARSE_H
 #define PARSE_H
 
+#define COMMANDS_COUNT 5
+#define MAX_COMMAND_LENGTH 100
 #define MAX_ARGUMENTS_COUNT 7
 
-enum command_type {
+enum CommandType {
     INIT,
     MOVE,
     PRODUCE_KNIGHT,
     PRODUCE_PEASANT,
-    END_TURN
+    END_TURN,
+    INVALID
 };
 
-typedef struct def_command {
-    enum command_type type;
+typedef struct DefCommand {
+    enum CommandType type;
     int arguments[MAX_ARGUMENTS_COUNT];
-} command;
+} Command;
 
+Command * newCommand(enum CommandType type, int * args, int argc);
+void removeCommand(Command * command);
 
-/** Reads a command.
-  Returns command with data points using 'command' structure.
-  */
-command* parse_command();
+Command * getCommandFromInput();
 
-#endif /* PARSE_H */
+#endif

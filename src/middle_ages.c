@@ -1,31 +1,29 @@
-#include <stdio.h>
-#include <string.h>
-
 #include "parse.h"
 #include "engine.h"
+#include <stdbool.h>
+#include <stdio.h>
 
 int main() {
-
+    bool gameInProgress = true;
     start_game();
 
-    command *new_command;
-    while (1) {
-        new_command = parse_command();
+    while (gameInProgress) {
+        Command * command = getCommandFromInput();
 
-        if (strcmp(new_command->name, "INIT") == 0) {
-            init(new_command->data[0],
-                 new_command->data[1],
-                 new_command->data[2],
-                 new_command->data[3],
-                 new_command->data[4],
-                 new_command->data[5],
-                 new_command->data[6]);
+        printf("%d", command->type);
+
+        switch (command->type) {
+            case INIT: break;
+            case MOVE: break;
+            case PRODUCE_KNIGHT: break;
+            case PRODUCE_PEASANT: break;
+            case END_TURN: break;
+            case INVALID: gameInProgress = false; break;
         }
 
-        print_topleft();
+        removeCommand(command);
     }
 
     end_game();
-
     return 0;
 }
