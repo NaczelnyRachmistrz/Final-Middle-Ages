@@ -1,10 +1,15 @@
 #include <stdlib.h>
 #include "units.h"
 
-unit new_unit(enum unit_type type, int x, int y) {
-    unit u =  (unit) malloc(sizeof(struct def_unit));
-    u->type = type;
-    u->x = x;
-    u->y = y;
-    return u;
+Unit * newUnit(enum UnitType type, int player, Coordinates position, int turn) {
+    Unit * unit =  (Unit *) malloc(sizeof(Unit));
+    unit->type = type;
+    unit->player = player;
+    unit->position = position;
+    unit->lastMove = turn;
+    return unit;
+}
+
+void removeUnit(Unit * unit) {
+    free(unit);
 }

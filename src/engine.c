@@ -1,19 +1,30 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "engine.h"
+#include "units.h"
 
-void start_game() {
+#define HASHTABLE_SIZE 1000003
+static UnitList* map[HASHTABLE_SIZE];
 
+Unit * getUnit(int x, int y) {
+    int cell = ((unsigned long long int)x * HASHTABLE_SIZE + y) % HASHTABLE_SIZE;
 }
 
-void end_game() {
+void startGame() {
+    for (int i = 0; i < HASHTABLE_SIZE; i++) {
+        map[i] = newUnitList();
+    }
+}
 
+void endGame() {
+    for (int i = 0; i < HASHTABLE_SIZE; i++) {
+        removeUnitList(map[i]);
+    }
 }
 
 void print_topleft() {
 
 }
 
-int init(int n, int k, int p, int x1, int y1, int x2, int y2) { 
+int init(int mapSize, int maxMoves, int player, int king1x, int king1y, int king2x, int king2y) {
 
 }
 

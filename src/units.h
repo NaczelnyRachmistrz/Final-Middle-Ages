@@ -1,22 +1,39 @@
 #ifndef MIDDLE_AGES_UNITS_H
 #define MIDDLE_AGES_UNITS_H
 
-enum unit_type {
+enum UnitType {
     UNDEFINED = 0,
     PEASANT = 1,
     KING = 2,
     KNIGHT = 3
 };
 
-typedef struct def_unit* unit;
-
-struct def_unit {
-    enum unit_type type;
+typedef struct {
     int x;
     int y;
-    int last_move;
+} Coordinates;
+
+typedef struct  {
+    enum UnitType type;
+    int player;
+
+    Coordinates position;
+    int lastMove;
+} Unit;
+
+struct UnitListNode;
+typedef struct UnitListNode UnitList;
+
+typedef struct UnitListNode {
+    Unit * unit;
+    UnitList * next;
 };
 
-unit new_unit(enum unit_type type, int x, int y);
+Unit * newUnit(enum UnitType type, int player, Coordinates position, int turn);
+void removeUnit(Unit * unit);
+
+Unit * newUnitList();
+void removeUnitList(UnitList * unitList);
+void addUnitToList(Unit * unit, UnitList * unitList);
 
 #endif //MIDDLE_AGES_UNITS_H
