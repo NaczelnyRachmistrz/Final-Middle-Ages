@@ -14,7 +14,7 @@ enum CommandType {
     INVALID
 };
 
-typedef struct DefCommand {
+typedef struct {
     enum CommandType type;
     int arguments[MAX_ARGUMENTS_COUNT];
 } Command;

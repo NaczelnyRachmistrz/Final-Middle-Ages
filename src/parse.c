@@ -12,17 +12,19 @@ static const char *commands[] = {
     "END_TURN"
 };
 
-static void copyArray(int * toArray, int * fromArray, int count) {
+static void copyArguments(int * toArray, int * fromArray, int count) {
+    for (int i = MAX_ARGUMENTS_COUNT - 1; i >= count; i--) {
+        toArray[i] = -1;
+    }
     while (count > 0) {
-        count--;
-        toArray[count] = fromArray[count];
+        toArray[--count] = fromArray[count];
     }
 }
 
 Command * newCommand(enum CommandType type, int * commandArguments, int commandArgumentsCount) {
-    Command * command = (Command *) malloc(sizeof(struct DefCommand));
+    Command * command = (Command *) malloc(sizeof(Command));
     command->type = type;
-    copyArray(&command->arguments, commandArguments, commandArgumentsCount);
+    copyArguments(&command->arguments, commandArguments, commandArgumentsCount);
     return command;
 }
 
