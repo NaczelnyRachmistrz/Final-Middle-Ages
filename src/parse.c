@@ -12,17 +12,17 @@ static const char *commands[] = {
     "END_TURN"
 };
 
-static void copyArray(int ** toArray, int ** fromArray, int count) {
+static void copyArray(int * toArray, int * fromArray, int count) {
     while (count > 0) {
         count--;
-        *toArray[count] = *fromArray[count];
+        toArray[count] = fromArray[count];
     }
 }
 
-Command * newCommand(enum CommandType type, int * args, int argc) {
+Command * newCommand(enum CommandType type, int * commandArguments, int commandArgumentsCount) {
     Command * command = (Command *) malloc(sizeof(struct DefCommand));
     command->type = type;
-    copyArray(&command->arguments, &args, argc);
+    copyArray(&command->arguments, commandArguments, commandArgumentsCount);
     return command;
 }
 
@@ -58,12 +58,39 @@ static int parseCommandType(char *text, enum CommandType * commandType) {
     return 1;
 }
 
-static int parseCommandArguments(char *text, int ** commandArguments, int * commandArgumentsCount) {
-    printf("ARGUMENTS [%s]\n", text);
-    return 1;
+static int intLength(int a) {
+    int n = 0;
+    while (a > 0) {
+        n++;
+        a /= 10;
+    }
+    return n;
+}
+
+static int parseCommandArguments(char *text, int * commandArguments, int * commandArgumentsCount) {
+    int argument, argumentLength;
+    *commandArgumentsCount = 0;
+
+    while (strlen(text) > 0) {
+        if (text[0] != ' ') {
+            return 1;
+        }
+        text++;
+
+        if (sscanf(text, "%d", &argument) != 1) {
+            return 1;
+        }
+        argumentLength = intLength(argument);
+        text += argumentLength;
+
+        commandArguments[(*commandArgumentsCount)++] = argument;
+    }
+    return 0;
 }
 
 static Command * parseCommand(char * text) {
+    Command * command;
+
     enum CommandType commandType;
     int commandArguments[MAX_ARGUMENTS_COUNT];
     int commandArgumentsCount;
@@ -71,24 +98,17 @@ static Command * parseCommand(char * text) {
     char * commandText = (char *) malloc(sizeof(char) * MAX_COMMAND_LENGTH);
     char * commandArgumentsText = (char *) malloc(sizeof(char) * MAX_COMMAND_LENGTH);
 
-    if (sscanf(text, "%s%[^\n]", commandText, commandArgumentsText) != 2) {
-        return newCommand(INVALID, NULL, 0);
+    if (sscanf(text, "%s%[^\n]", commandText, commandArgumentsText) != 2
+    || parseCommandType(commandText, &commandType)
+    || parseCommandArguments(commandArgumentsText, &commandArguments, &commandArgumentsCount)) {
+        command = newCommand(INVALID, NULL, 0);
+    } else {
+        command = newCommand(commandType, commandArguments, commandArgumentsCount);
     }
-
-    if (parseCommandType(commandText, &commandType)) {
-        return newCommand(INVALID, NULL, 0);
-    }
-
-    if (parseCommandArguments(commandArgumentsText, &commandArguments, &commandArgumentsCount)) {
-        return newCommand(INVALID, NULL, 0);
-    }
-
-    Command * command = newCommand(commandType, commandArguments, commandArgumentsCount);
 
     free(text);
     free(commandText);
     free(commandArgumentsText);
-
     return command;
 }
 

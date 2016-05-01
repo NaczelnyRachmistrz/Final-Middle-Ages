@@ -19,7 +19,7 @@ typedef struct DefCommand {
     int arguments[MAX_ARGUMENTS_COUNT];
 } Command;
 
-Command * newCommand(enum CommandType type, int * args, int argc);
+Command * newCommand(enum CommandType type, int * commandArguments, int commandArgumentsCount);
 void removeCommand(Command * command);
 
 Command * getCommandFromInput();
