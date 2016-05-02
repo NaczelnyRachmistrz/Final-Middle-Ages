@@ -9,24 +9,29 @@ static int indexFromCoordinates(Coordinates coordinates) {
     return (int) (dividend % HASHTABLE_SIZE);
 }
 
-void initializeMap() {
+void mapInitialize() {
     for (int i = 0; i < HASHTABLE_SIZE; i++) {
         map[i] = unitListNew();
     }
 }
 
-void removeMap() {
+void mapRemove() {
     for (int i = 0; i < HASHTABLE_SIZE; i++) {
         unitListRemove(map[i]);
     }
 }
 
-Unit * getUnitAtPosition(Coordinates position) {
+void mapAddUnit(Unit * unit, Coordinates position) {
     int index = indexFromCoordinates(position);
-    return unitListFindUnit(position, map[index]);
+    unitListAddUnit(unit, map[index]);
 }
 
-void removeUnitAtPosition(Coordinates position) {
+Unit * mapGetUnit(Coordinates position) {
+    int index = indexFromCoordinates(position);
+    return unitListGetUnit(position, map[index]);
+}
+
+void mapRemoveUnit(Coordinates position) {
     int index = indexFromCoordinates(position);
     unitListRemoveUnit(position, map[index]);
 }

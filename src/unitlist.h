@@ -12,13 +12,11 @@ typedef struct UnitList {
     UnitListNode next;
 };
 
-
 UnitListNode * unitListNew();
 void unitListRemove(UnitListNode unitList);
 
 void unitListAddUnit(Unit *unit, UnitListNode *unitList);
-Unit * unitListFindUnit(Coordinates position, UnitListNode unitList);
-Unit * unitListFetchUnit(Coordinates position, UnitListNode *unitList);
+Unit * unitListGetUnit(Coordinates position, UnitListNode unitList);
 void unitListRemoveUnit(Coordinates position, UnitListNode *unitList);
 
 #endif

@@ -26,7 +26,7 @@ void unitListAddUnit(Unit *unit, UnitListNode * unitList) {
     *unitList = unitListNode;
 }
 
-Unit * unitListFindUnit(Coordinates position, UnitListNode unitList) {
+Unit * unitListGetUnit(Coordinates position, UnitListNode unitList) {
     while (unitList != NULL) {
         if (coordinatesCompare(unitList->unit->position, position) == 0) {
             return unitList->unit;
@@ -34,12 +34,6 @@ Unit * unitListFindUnit(Coordinates position, UnitListNode unitList) {
         unitList = unitList->next;
     }
     return NULL;
-}
-
-Unit * unitListFetchUnit(Coordinates position, UnitListNode * unitList) {
-    Unit * unit = unitListFindUnit(position, *unitList);
-    unitListRemoveUnit(position, unitList);
-    return unit;
 }
 
 void unitListRemoveUnit(Coordinates position, UnitListNode *unitList) {

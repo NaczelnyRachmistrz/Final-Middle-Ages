@@ -5,10 +5,12 @@
 #include "unit.h"
 #include "unitlist.h"
 
-void initializeMap();
-void removeMap();
+void mapInitialize();
+void mapRemove();
 
-Unit * getUnitAtPosition(Coordinates position);
-void removeUnitAtPosition(Coordinates position);
+void mapAddUnit(Unit * unit, Coordinates position);
+Unit * mapGetUnit(Coordinates position);
+void mapRemoveUnit(Coordinates position);
 
 #endif
+

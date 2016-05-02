@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdio.h>
 
 #include "engine.h"
@@ -6,11 +5,15 @@
 #include "unit.h"
 
 void startGame() {
-    initializeMap();
+    mapInitialize();
 }
 
 void endGame() {
     removeMap();
+}
+
+static char lowercase(char c) {
+    return (char)(c + ('a' - 'A'));
 }
 
 static char getUnitRepresentation(Unit * unit) {
@@ -23,14 +26,14 @@ static char getUnitRepresentation(Unit * unit) {
         case KING: representation = 'K'; break;
         case PEASANT: representation = 'C'; break;
     }
-    return (char)(representation + (unit->player - 1) * ('a' - 'A'));
+    return unit->player == 1 ? representation : lowercase(representation);
 }
 
 void printTopLeft() {
     int mapSize =  10;
     for (int x = 1; x <= mapSize; x++) {
         for (int y = 1; y <= mapSize; y++) {
-            Unit * unit = getUnitAtPosition({x, y});
+            Unit * unit = mapGetUnit({x, y});
             char unitRepresentation = getUnitRepresentation(unit);
             printf("%c", unitRepresentation);
         }
