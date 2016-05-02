@@ -21,8 +21,8 @@ set(SOURCE_FILES
         src/middle_ages.c
         src/parse.c
         src/parse.h
-        src/units.h
-        src/units.c)
+        src/unit.h
+        src/unit.c src/map.h src/map.c src/unitlist.c src/unitlist.h src/coordinates.c src/coordinates.h)
 
 add_executable(middle_ages ${SOURCE_FILES})
 

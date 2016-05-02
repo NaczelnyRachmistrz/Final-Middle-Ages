@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "units.h"
+#include "unit.h"
 
 Unit * newUnit(enum UnitType type, int player, Coordinates position, int turn) {
     Unit * unit =  (Unit *) malloc(sizeof(Unit));
