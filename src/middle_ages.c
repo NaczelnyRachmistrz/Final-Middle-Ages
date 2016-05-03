@@ -27,14 +27,12 @@ int main() {
             case INVALID_INPUT: result = ACTION_INVALID_ARGUMENTS; break;
         }
 
+        removeCommand(command);
+
         if (result != ACTION_OK) {
             endGame();
             fprintf(stderr, "input error\n");
             return 42;
         }
-
-        removeCommand(command);
     }
-
-    endGame();
 }
