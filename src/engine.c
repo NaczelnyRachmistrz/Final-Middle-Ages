@@ -5,41 +5,24 @@
 #include "map.h"
 #include "unit.h"
 
-#define MAX_PLAYERS_COUNT 2
+#define PLAYERS_COUNT 2
 
 static int engineMapSize;
-static int engineMaxMoves;
+static int engineMovesLeft;
 static int enginePlayerTurn;
 
-static bool initializedPlayers[MAX_PLAYERS_COUNT + 1];
-static Unit * enginePlayerKings[MAX_PLAYERS_COUNT + 1];
+static bool initializedPlayers[PLAYERS_COUNT + 1];
+static Unit * enginePlayerKings[PLAYERS_COUNT + 1];
 
 void startGame() {
     mapInitialize();
     engineMapSize = -1;
-    engineMaxMoves = -1;
+    engineMovesLeft = -1;
     enginePlayerTurn = 1;
 }
 
 void endGame() {
     mapRemove();
-}
-
-static char toLowercase(char c) {
-    return (char)(c + ('a' - 'A'));
-}
-
-static char getUnitRepresentation(Unit * unit) {
-    if (unit == NULL) {
-        return '.';
-    }
-    char representation = 'A';
-    switch (unit->type) {
-        case KNIGHT: representation = 'R'; break;
-        case KING: representation = 'K'; break;
-        case PEASANT: representation = 'C'; break;
-    }
-    return unit->player == 1 ? representation : toLowercase(representation);
 }
 
 void printTopLeft() {
@@ -48,24 +31,23 @@ void printTopLeft() {
         for (int x = 1; x <= mapSize; x++) {
             Coordinates position = {x, y};
             Unit * unit = mapGetUnit(position);
-            char unitRepresentation = getUnitRepresentation(unit);
+            char unitRepresentation = unitGetRepresentation(unit);
             printf("%c", unitRepresentation);
         }
         printf("\n");
     }
-
+    printf("\n");
 }
 
-
 static bool isPlayerInitialized(int playerID) {
-    if (playerID < 1 || playerID > MAX_PLAYERS_COUNT) {
+    if (playerID < 1 || playerID > PLAYERS_COUNT) {
         return true;
     }
     return initializedPlayers[playerID];
 }
 
 static bool isGameInitialized() {
-    for (int i = 1; i <= MAX_PLAYERS_COUNT; i++) {
+    for (int i = 1; i <= PLAYERS_COUNT; i++) {
         if (!isPlayerInitialized(i)) {
             return false;
         }
@@ -78,14 +60,14 @@ static bool isProperKingPosition(Coordinates position) {
 }
 
 static void spawnInitialUnits(int playerID, Coordinates position) {
-    enginePlayerKings[playerID] = newUnit(KING, playerID, position, 1);
+    enginePlayerKings[playerID] = unitNew(KING, playerID, position, engineMovesLeft);
     mapAddUnit(enginePlayerKings[playerID]);
     position.x++;
-    mapAddUnit(newUnit(PEASANT, playerID, position, 1));
+    mapAddUnit(unitNew(PEASANT, playerID, position, engineMovesLeft));
     position.x++;
-    mapAddUnit(newUnit(KNIGHT, playerID, position, 1));
+    mapAddUnit(unitNew(KNIGHT, playerID, position, engineMovesLeft));
     position.x++;
-    mapAddUnit(newUnit(KNIGHT, playerID, position, 1));
+    mapAddUnit(unitNew(KNIGHT, playerID, position, engineMovesLeft));
 }
 
 enum ActionResult initializeFirst(int mapSize, int maxMoves, int playerID, Coordinates firstKingPosition, Coordinates secondKingPosition) {
@@ -98,7 +80,7 @@ enum ActionResult initializeFirst(int mapSize, int maxMoves, int playerID, Coord
     if (maxMoves < 1) {
         return ACTION_INVALID_ARGUMENTS;
     } else {
-        engineMaxMoves = maxMoves;
+        engineMovesLeft = maxMoves;
     }
 
     if (!isProperKingPosition(firstKingPosition) || !isProperKingPosition(secondKingPosition)) {
@@ -114,7 +96,7 @@ enum ActionResult initializeFirst(int mapSize, int maxMoves, int playerID, Coord
 }
 
 enum ActionResult initializeSecond(int mapSize, int maxMoves, int playerID, Coordinates firstKingPosition, Coordinates secondKingPosition) {
-    if (mapSize != engineMapSize || maxMoves != engineMaxMoves) {
+    if (mapSize != engineMapSize || maxMoves != engineMovesLeft) {
         return ACTION_INVALID_ARGUMENTS;
     }
 
@@ -127,6 +109,7 @@ enum ActionResult initializeSecond(int mapSize, int maxMoves, int playerID, Coor
     || coordinatesCompare(secondKing->position, secondKingPosition) != 0) {
         return ACTION_INVALID_COORDINATES;
     } else {
+        initializedPlayers[playerID] = true;
         return ACTION_OK;
     }
 }
@@ -148,18 +131,99 @@ static bool isProperPosition(Coordinates position) {
     return position.x >= 1 && position.x <= engineMapSize && position.y >= 1 && position.y <= engineMapSize;
 }
 
-int move(int fromX, int fromY, int toX, int toY) {
+enum ActionResult move(int unitX, int unitY, int moveX, int moveY) {
+    if (!isGameInitialized()) {
+        return ACTION_GAME_NOT_INITIALIZED;
+    }
 
+    Coordinates unitPosition = { unitX, unitY };
+    Coordinates movePosition = { moveX, moveY };
+
+    if (!isProperPosition(unitPosition) || !isProperPosition(movePosition) || coordinatesDistance(unitPosition, movePosition) != 1) {
+       return ACTION_INVALID_COORDINATES;
+    }
+
+    Unit * unit = mapGetUnit(unitPosition);
+    if (unit == NULL) {
+        return ACTION_UNIT_DOES_NOT_EXIST;
+    } else if (unit->player != enginePlayerTurn) {
+        return ACTION_PERMISSION_DENIED;
+    } else if (unit->lastMove < engineMovesLeft) {
+        return ACTION_UNIT_CANNOT_PERFORM_ACTION;
+    }
+
+    Unit * moveField = mapGetUnit(movePosition);
+    if (moveField != NULL && moveField->player == enginePlayerTurn) {
+        return ACTION_FIELD_ALREADY_OCCUPIED;
+    }
+
+    mapRemoveUnit(unitPosition);
+    mapRemoveUnit(movePosition);
+
+    unit->position = movePosition;
+    unit->lastMove = engineMovesLeft - 1;
+
+    unit = unitFight(unit, moveField);
+
+    if (unit != NULL) {
+        mapAddUnit(unit);
+    }
+
+    return ACTION_OK;
 }
 
-int produceKnight(int peasantX, int peasantY, int knightX, int knightY) {
+static enum ActionResult produceUnit(enum UnitType unitType, Coordinates peasantPosition, Coordinates unitPosition) {
+    if (!isGameInitialized()) {
+        return ACTION_GAME_NOT_INITIALIZED;
+    }
 
+    if (!isProperPosition(peasantPosition)
+        || !isProperPosition(unitPosition)
+        || coordinatesDistance(peasantPosition, unitPosition) != 1) {
+        return ACTION_INVALID_COORDINATES;
+    }
+
+    Unit * peasant = mapGetUnit(peasantPosition);
+    if (peasant == NULL) {
+        return ACTION_UNIT_DOES_NOT_EXIST;
+    } else if (peasant->player != enginePlayerTurn) {
+        return ACTION_PERMISSION_DENIED;
+    } else if (peasant->type != PEASANT) {
+        return ACTION_UNIT_CANNOT_PERFORM_ACTION;
+    } else if (peasant->lastMove - 2 < engineMovesLeft) {
+        return ACTION_UNIT_CANNOT_PERFORM_ACTION;
+    }
+
+    Unit * unit = mapGetUnit(unitPosition);
+    if (unit != NULL) {
+        return ACTION_FIELD_ALREADY_OCCUPIED;
+    }
+
+    unit = unitNew(unitType, enginePlayerTurn, unitPosition, engineMovesLeft);
+    mapAddUnit(unit);
+
+    peasant->lastMove = engineMovesLeft - 1;
+    return  ACTION_OK;
 }
 
-int producePeasant(int x1, int y1, int x2, int y2) {
+enum ActionResult produceKnight(int peasantX, int peasantY, int knightX, int knightY) {
+    Coordinates peasantPosition = { peasantX, peasantY };
+    Coordinates knightPosition = { knightX, knightY };
 
+    return produceUnit(KNIGHT, peasantPosition, knightPosition);
 }
 
-int endTurn() {
+enum ActionResult producePeasant(int peasantX, int peasantY, int newPeasantX, int newPeasantY) {
+    Coordinates peasantPosition = { peasantX, peasantY };
+    Coordinates newPeasantPosition = { newPeasantX, newPeasantY };
 
+    return produceUnit(PEASANT, peasantPosition, newPeasantPosition);
+}
+
+enum ActionResult endTurn() {
+    if (enginePlayerTurn == PLAYERS_COUNT) {
+        engineMovesLeft--;
+    }
+    enginePlayerTurn = enginePlayerTurn % PLAYERS_COUNT + 1;
+    return ACTION_OK_NO_DISPLAY;
 }

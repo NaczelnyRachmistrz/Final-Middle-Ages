@@ -100,12 +100,23 @@ static Command * parseCommand(char * text) {
     char * commandText = (char *) malloc(sizeof(char) * MAX_COMMAND_LENGTH);
     char * commandArgumentsText = (char *) malloc(sizeof(char) * MAX_COMMAND_LENGTH);
 
-    if (sscanf(text, "%s%[^\n]", commandText, commandArgumentsText) != 2
-    || parseCommandType(commandText, &commandType)
-    || parseCommandArguments(commandArgumentsText, commandArguments, &commandArgumentsCount)) {
-        command = newCommand(INVALID_INPUT, NULL, 0);
+    int sscanfResult = sscanf(text, "%s%[^\n]", commandText, commandArgumentsText);
+
+    if (sscanfResult == 1) {
+        if (parseCommandType(commandText, &commandType)) {
+            command = newCommand(INVALID_INPUT, NULL, 0);
+        } else {
+            command = newCommand(commandType, commandArguments, 0);
+        }
+    } else if (sscanfResult == 2) {
+        if (parseCommandType(commandText, &commandType)
+        || parseCommandArguments(commandArgumentsText, commandArguments, &commandArgumentsCount)) {
+            command = newCommand(INVALID_INPUT, NULL, 0);
+        } else {
+            command = newCommand(commandType, commandArguments, commandArgumentsCount);
+        }
     } else {
-        command = newCommand(commandType, commandArguments, commandArgumentsCount);
+        command = newCommand(INVALID_INPUT, NULL, 0);
     }
 
     free(text);

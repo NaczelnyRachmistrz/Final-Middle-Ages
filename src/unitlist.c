@@ -42,8 +42,10 @@ void unitListRemoveUnit(Coordinates position, UnitListNode *unitList) {
     while (currentListNode != NULL) {
         if (coordinatesCompare(currentListNode->unit->position, position) == 0) {
             *lastUnitListNode = currentListNode->next;
-            unitListRemoveNode(currentListNode);
+            free(currentListNode);
+            return;
         }
         lastUnitListNode = &(currentListNode->next);
+        currentListNode = currentListNode->next;
     }
 }

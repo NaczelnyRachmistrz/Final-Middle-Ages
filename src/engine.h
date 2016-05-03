@@ -3,10 +3,14 @@
 
 enum ActionResult {
     ACTION_OK,
+    ACTION_OK_NO_DISPLAY,
+    ACTION_INVALID_ARGUMENTS,
     ACTION_GAME_NOT_INITIALIZED,
     ACTION_GAME_ALREADY_INITIALIZED,
     ACTION_INVALID_COORDINATES,
-    ACTION_INVALID_ARGUMENTS,
+    ACTION_UNIT_DOES_NOT_EXIST,
+    ACTION_UNIT_CANNOT_PERFORM_ACTION,
+    ACTION_FIELD_ALREADY_OCCUPIED,
     ACTION_PERMISSION_DENIED
 };
 
@@ -16,13 +20,13 @@ void endGame();
 
 enum ActionResult init(int mapSize, int maxMoves, int playerID, int firstKingX, int firstKingY, int secondKingX, int secondKingY);
 
-int move(int x1, int y1, int x2, int y2);
+enum ActionResult move(int unitX, int unitY, int moveX, int moveY);
 
-int produce_knight(int x1, int y1, int x2, int y2);
+enum ActionResult produceKnight(int peasantX, int peasantY, int knightX, int knightY);
 
-int produce_peasant(int x1, int y1, int x2, int y2);
+enum ActionResult producePeasant(int peasantX, int peasantY, int newPeasantX, int newPeasantY);
 
-int end_turn();
+enum ActionResult endTurn();
 
 void printTopLeft();
 

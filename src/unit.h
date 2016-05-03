@@ -17,7 +17,10 @@ typedef struct  {
     int lastMove;
 } Unit;
 
-Unit * newUnit(enum UnitType type, int player, Coordinates position, int turn);
-void removeUnit(Unit * unit);
+Unit * unitNew(enum UnitType type, int player, Coordinates position, int turn);
+void unitRemove(Unit * unit);
+
+char unitGetRepresentation(Unit * unit);
+Unit * unitFight(Unit * firstUnit, Unit * secondUnit);
 
 #endif //MIDDLE_AGES_UNITS_H
