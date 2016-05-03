@@ -1,11 +1,20 @@
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef MIDDLE_AGES_ENGINE_H
+#define MIDDLE_AGES_ENGINE_H
+
+enum ActionResult {
+    ACTION_OK,
+    ACTION_GAME_NOT_INITIALIZED,
+    ACTION_GAME_ALREADY_INITIALIZED,
+    ACTION_INVALID_COORDINATES,
+    ACTION_INVALID_ARGUMENTS,
+    ACTION_PERMISSION_DENIED
+};
 
 void startGame();
 
 void endGame();
 
-int init(int mapSize, int maxMoves, int player, int king1x, int king1y, int king2x, int king2y);
+enum ActionResult init(int mapSize, int maxMoves, int playerID, int firstKingX, int firstKingY, int secondKingX, int secondKingY);
 
 int move(int x1, int y1, int x2, int y2);
 
@@ -15,9 +24,6 @@ int produce_peasant(int x1, int y1, int x2, int y2);
 
 int end_turn();
 
-/**
- * Prints (into stdout) top-left corner of the board of size m x m where m = min(n,10).
- */
 void printTopLeft();
 
 #endif /* ENGINE_H */

@@ -4,12 +4,12 @@
 #include "parse.h"
 
 static const char *commands[] = {
-    "INVALID_INPUT",
     "INIT",
     "MOVE",
     "PRODUCE_KNIGHT",
     "PRODUCE_PEASANT",
-    "END_TURN"
+    "END_TURN",
+    "INVALID_INPUT"
 };
 
 static void copyArguments(int * toArray, int * fromArray, int count) {
@@ -24,7 +24,7 @@ static void copyArguments(int * toArray, int * fromArray, int count) {
 Command * newCommand(enum CommandType type, int * commandArguments, int commandArgumentsCount) {
     Command * command = (Command *) malloc(sizeof(Command));
     command->type = type;
-    copyArguments(&command->arguments, commandArguments, commandArgumentsCount);
+    copyArguments(command->arguments, commandArguments, commandArgumentsCount);
     return command;
 }
 
@@ -40,10 +40,10 @@ static char* readLine() {
     int character;
 
     while (EOF != (character = fgetc(stdin)) && character != '\n') {
-        if (length == bufferSize){
+        if (length == bufferSize) {
             continue;
         }
-        buffer[length++] = character;
+        buffer[length++] = (char)character;
     }
 
     buffer[length++] = '\0';
@@ -102,8 +102,8 @@ static Command * parseCommand(char * text) {
 
     if (sscanf(text, "%s%[^\n]", commandText, commandArgumentsText) != 2
     || parseCommandType(commandText, &commandType)
-    || parseCommandArguments(commandArgumentsText, &commandArguments, &commandArgumentsCount)) {
-        command = newCommand(INVALID, NULL, 0);
+    || parseCommandArguments(commandArgumentsText, commandArguments, &commandArgumentsCount)) {
+        command = newCommand(INVALID_INPUT, NULL, 0);
     } else {
         command = newCommand(commandType, commandArguments, commandArgumentsCount);
     }

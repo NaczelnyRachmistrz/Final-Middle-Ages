@@ -1,7 +1,7 @@
 #include "unitlist.h"
 #include <stdlib.h>
 
-UnitListNode * unitListNew() {
+UnitListNode unitListNew() {
     return NULL;
 }
 

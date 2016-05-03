@@ -2,35 +2,39 @@
 #include "engine.h"
 #include <stdio.h>
 
-#define GAME_FINISHED 0
-#define GAME_PLAYING 1
-#define GAME_INPUT_ERROR 42
-
 int main() {
-    int gameState = GAME_PLAYING;
-    
     startGame();
-    
-    while (gameState == GAME_PLAYING) {
+
+    while (1) {
         Command * command = getCommandFromInput();
+        enum ActionResult result = ACTION_INVALID_ARGUMENTS;
 
         switch (command->type) {
-            case INIT: break;
+            case INIT:
+                result = init(command->arguments[0],
+                     command->arguments[1],
+                     command->arguments[2],
+                     command->arguments[3],
+                     command->arguments[4],
+                     command->arguments[5],
+                     command->arguments[6]);
+                printTopLeft();
+                break;
             case MOVE: break;
             case PRODUCE_KNIGHT: break;
             case PRODUCE_PEASANT: break;
             case END_TURN: break;
-            case INVALID: gameState = GAME_INPUT_ERROR; break;
+            case INVALID_INPUT: result = ACTION_INVALID_ARGUMENTS; break;
+        }
+
+        if (result != ACTION_OK) {
+            endGame();
+            fprintf(stderr, "input error\n");
+            return 42;
         }
 
         removeCommand(command);
     }
 
     endGame();
-
-    switch (gameState) {
-        case GAME_INPUT_ERROR: fprintf(stderr, "input error\n");
-    }
-
-    return gameState;
 }

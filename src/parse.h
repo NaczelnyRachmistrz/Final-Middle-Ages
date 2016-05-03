@@ -1,5 +1,5 @@
-#ifndef PARSE_H
-#define PARSE_H
+#ifndef MIDDLE_AGES_PARSE_H
+#define MIDDLE_AGES_PARSE_H
 
 #define COMMANDS_COUNT 5
 #define MAX_COMMAND_LENGTH 100
@@ -11,7 +11,7 @@ enum CommandType {
     PRODUCE_KNIGHT,
     PRODUCE_PEASANT,
     END_TURN,
-    INVALID
+    INVALID_INPUT
 };
 
 typedef struct {

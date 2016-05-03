@@ -7,5 +7,6 @@ typedef struct {
 } Coordinates;
 
 int coordinatesCompare(Coordinates a, Coordinates b);
+int coordinatesDistance(Coordinates a, Coordinates b);
 
 #endif

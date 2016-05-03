@@ -1,8 +1,10 @@
 #include "map.h"
+#include <assert.h>
+#include <stdlib.h>
 
 #define HASHTABLE_SIZE 1000003
 
-static UnitListNode* map[HASHTABLE_SIZE];
+static UnitListNode map[HASHTABLE_SIZE];
 
 static int indexFromCoordinates(Coordinates coordinates) {
     unsigned long long int dividend = (unsigned long long int)coordinates.x * HASHTABLE_SIZE + coordinates.y;
@@ -21,9 +23,10 @@ void mapRemove() {
     }
 }
 
-void mapAddUnit(Unit * unit, Coordinates position) {
-    int index = indexFromCoordinates(position);
-    unitListAddUnit(unit, map[index]);
+void mapAddUnit(Unit * unit) {
+    int index = indexFromCoordinates(unit->position);
+    assert(unitListGetUnit(unit->position, map[index]) == NULL);
+    unitListAddUnit(unit, &map[index]);
 }
 
 Unit * mapGetUnit(Coordinates position) {
@@ -33,5 +36,5 @@ Unit * mapGetUnit(Coordinates position) {
 
 void mapRemoveUnit(Coordinates position) {
     int index = indexFromCoordinates(position);
-    unitListRemoveUnit(position, map[index]);
+    unitListRemoveUnit(position, &map[index]);
 }

@@ -8,7 +8,7 @@
 void mapInitialize();
 void mapRemove();
 
-void mapAddUnit(Unit * unit, Coordinates position);
+void mapAddUnit(Unit * unit);
 Unit * mapGetUnit(Coordinates position);
 void mapRemoveUnit(Coordinates position);
 

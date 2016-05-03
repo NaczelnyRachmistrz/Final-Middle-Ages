@@ -7,12 +7,12 @@
 struct UnitListNode;
 typedef struct UnitList * UnitListNode;
 
-typedef struct UnitList {
+struct UnitList {
     Unit * unit;
     UnitListNode next;
 };
 
-UnitListNode * unitListNew();
+UnitListNode unitListNew();
 void unitListRemove(UnitListNode unitList);
 
 void unitListAddUnit(Unit *unit, UnitListNode *unitList);
