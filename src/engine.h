@@ -24,13 +24,13 @@ void startGame();
 
 void endGame();
 
-enum ActionResult init(int mapSize, int maxMoves, int playerID, int firstKingX, int firstKingY, int secondKingX, int secondKingY);
+enum ActionResult init(long mapSize, long maxMoves, int playerID, long firstKingX, long firstKingY, long secondKingX, long secondKingY);
 
-enum ActionResult move(int unitX, int unitY, int moveX, int moveY);
+enum ActionResult move(long unitX, long unitY, long moveX, long moveY);
 
-enum ActionResult produceKnight(int peasantX, int peasantY, int knightX, int knightY);
+enum ActionResult produceKnight(long peasantX, long peasantY, long knightX, long knightY);
 
-enum ActionResult producePeasant(int peasantX, int peasantY, int newPeasantX, int newPeasantY);
+enum ActionResult producePeasant(long peasantX, long peasantY, long newPeasantX, long newPeasantY);
 
 enum ActionResult endTurn();
 

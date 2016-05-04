@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "unit.h"
 
-Unit * unitNew(enum UnitType type, int player, Coordinates position, int turn) {
+Unit * unitNew(enum UnitType type, int player, Coordinates position, long turn) {
     Unit * unit =  (Unit *) malloc(sizeof(Unit));
     unit->type = type;
     unit->player = player;

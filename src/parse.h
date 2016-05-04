@@ -16,12 +16,10 @@ enum CommandType {
 
 typedef struct {
     enum CommandType type;
-    int arguments[MAX_ARGUMENTS_COUNT];
+    long arguments[MAX_ARGUMENTS_COUNT];
 } Command;
 
-Command * newCommand(enum CommandType type, int * commandArguments, int commandArgumentsCount);
-void removeCommand(Command * command);
-
 Command * getCommandFromInput();
+void removeCommand(Command * command);
 
 #endif

@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+#include <assert.h>
 #include "parse.h"
 
 static const char * commands[] = {
@@ -13,40 +15,40 @@ static const char * commands[] = {
 };
 
 static const int properCommandArgumentsCount[] = {
-    7,
-    4,
-    4,
-    4,
-    0
+    7, // INIT
+    4, // MOVE
+    4, // PRODUCE_KNIGHT
+    4, // PRODUCE_PEASANT
+    0  // INVALID_INPUT
 };
 
-static int hasValidArgumentsCount(enum CommandType commandType, int commandArgumentsCount) {
+static bool hasValidArgumentsCount(enum CommandType commandType, int commandArgumentsCount) {
     if (commandType == INVALID_INPUT) {
-        return 1;
+        return true;
     } else {
         return properCommandArgumentsCount[commandType] == commandArgumentsCount;
     }
 }
 
-static void copyArguments(int * toArray, int * fromArray, int count) {
+static void copyArguments(long * toArray, long * fromArray, int count) {
+    assert(count >= 0 && count <= MAX_ARGUMENTS_COUNT);
     while (count > 0) {
-        toArray[--count] = fromArray[count];
+        count--;
+        toArray[count] = fromArray[count];
     }
 }
 
-Command * newCommand(enum CommandType type, int * commandArguments, int commandArgumentsCount) {
+Command * newCommand(enum CommandType type, long * commandArguments, int commandArgumentsCount) {
     Command * command = (Command *) malloc(sizeof(Command));
+
     if (hasValidArgumentsCount(type, commandArgumentsCount)) {
         command->type = type;
         copyArguments(command->arguments, commandArguments, commandArgumentsCount);
     } else {
         command->type = INVALID_INPUT;
     }
-    return command;
-}
 
-void removeCommand(Command * command) {
-    free(command);
+    return command;
 }
 
 static char* readLine() {
@@ -77,7 +79,7 @@ static int parseCommandType(char *text, enum CommandType * commandType) {
     return 1;
 }
 
-static int intLength(int a) {
+static int numberLength(long a) {
     int n = 0;
     while (a > 0) {
         n++;
@@ -86,24 +88,20 @@ static int intLength(int a) {
     return n;
 }
 
-static int parseCommandArguments(char *text, int * commandArguments, int * commandArgumentsCount) {
-    int argument, argumentLength;
+static int parseCommandArguments(char *text, long * commandArguments, int * commandArgumentsCount) {
+    long argument;
     *commandArgumentsCount = 0;
 
     while (strlen(text) > 0) {
         if (text[0] != ' ') {
             return 1;
-        }
-        text++;
-
-        if (sscanf(text, "%d", &argument) != 1) {
+        } else if (sscanf(++text, "%ld", &argument) != 1) {
             return 1;
         }
-        argumentLength = intLength(argument);
-        text += argumentLength;
-
+        text += numberLength(argument);
         commandArguments[(*commandArgumentsCount)++] = argument;
     }
+
     return 0;
 }
 
@@ -111,20 +109,17 @@ static Command * parseCommand(char * text) {
     Command * command;
 
     enum CommandType commandType;
-    int commandArguments[MAX_ARGUMENTS_COUNT];
+    long commandArguments[MAX_ARGUMENTS_COUNT];
     int commandArgumentsCount = 0;
 
     char * commandText = (char *) malloc(sizeof(char) * MAX_COMMAND_LENGTH);
 
-    if (sscanf(text, "%s", commandText) == 1) {
-        if (parseCommandType(commandText, &commandType)
+    if (sscanf(text, "%s", commandText) != 1
+        || parseCommandType(commandText, &commandType)
         || parseCommandArguments(text + strlen(commandText), commandArguments, &commandArgumentsCount)) {
-            command = newCommand(INVALID_INPUT, NULL, 0);
-        } else {
-            command = newCommand(commandType, commandArguments, commandArgumentsCount);
-        }
-    } else {
         command = newCommand(INVALID_INPUT, NULL, 0);
+    } else {
+        command = newCommand(commandType, commandArguments, commandArgumentsCount);
     }
 
     free(text);
@@ -132,7 +127,11 @@ static Command * parseCommand(char * text) {
     return command;
 }
 
-Command* getCommandFromInput() {
+Command * getCommandFromInput() {
     char * commandText = readLine();
     return parseCommand(commandText);
+}
+
+void removeCommand(Command * command) {
+    free(command);
 }

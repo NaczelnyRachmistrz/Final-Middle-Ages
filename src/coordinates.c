@@ -12,14 +12,14 @@ int coordinatesCompare(Coordinates a, Coordinates b) {
     }
 }
 
-static int max(int a, int b) {
+static long max(long a, long b) {
     return a > b ? a : b;
 }
 
-static int abs(int a) {
+static long abs(long a) {
     return a >= 0 ? a : -a;
 }
 
-int coordinatesDistance(Coordinates a, Coordinates b) {
+long coordinatesDistance(Coordinates a, Coordinates b) {
     return max(abs(a.x - b.x), abs(a.y - b.y));
 }

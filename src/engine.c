@@ -7,8 +7,8 @@
 
 #define PLAYERS_COUNT 2
 
-static int engineMapSize;
-static int engineMovesLeft;
+static long engineMapSize;
+static long engineMovesLeft;
 static int enginePlayerTurn;
 
 static bool initializedPlayers[PLAYERS_COUNT + 1];
@@ -27,8 +27,8 @@ void endGame() {
 
 void printTopLeft() {
     int mapSize =  10;
-    for (int y = 1; y <= mapSize; y++) {
-        for (int x = 1; x <= mapSize; x++) {
+    for (long y = 1; y <= mapSize; y++) {
+        for (long x = 1; x <= mapSize; x++) {
             Coordinates position = {x, y};
             Unit * unit = mapGetUnit(position);
             char unitRepresentation = unitGetRepresentation(unit);
@@ -135,7 +135,7 @@ enum ActionResult initializeFirst(int mapSize, int maxMoves, int playerID, Coord
     }
 }
 
-enum ActionResult initializeSecond(int mapSize, int maxMoves, int playerID, Coordinates firstKingPosition, Coordinates secondKingPosition) {
+enum ActionResult initializeSecond(long mapSize, long maxMoves, int playerID, Coordinates firstKingPosition, Coordinates secondKingPosition) {
     if (mapSize != engineMapSize || maxMoves != engineMovesLeft) {
         return ACTION_INVALID_ARGUMENTS;
     }
@@ -154,7 +154,7 @@ enum ActionResult initializeSecond(int mapSize, int maxMoves, int playerID, Coor
     }
 }
 
-enum ActionResult init(int mapSize, int maxMoves, int playerID, int firstKingX, int firstKingY, int secondKingX, int secondKingY) {
+enum ActionResult init(long mapSize, long maxMoves, int playerID, long firstKingX, long firstKingY, long secondKingX, long secondKingY) {
     Coordinates firstKingPosition = {firstKingX, firstKingY};
     Coordinates secondKingPosition = {secondKingX, secondKingY};
 
@@ -223,7 +223,7 @@ static void makeMove(Unit * unit, Unit * field, Coordinates movePosition) {
     addUnitAfterBattle(unitFight(unit, field));
 }
 
-enum ActionResult move(int unitX, int unitY, int moveX, int moveY) {
+enum ActionResult move(long unitX, long unitY, long moveX, long moveY) {
     Coordinates unitPosition = { unitX, unitY };
     Coordinates movePosition = { moveX, moveY };
 
@@ -278,14 +278,14 @@ static enum ActionResult produceUnit(enum UnitType unitType, Coordinates peasant
     return  ACTION_OK;
 }
 
-enum ActionResult produceKnight(int peasantX, int peasantY, int knightX, int knightY) {
+enum ActionResult produceKnight(long peasantX, long peasantY, long knightX, long knightY) {
     Coordinates peasantPosition = { peasantX, peasantY };
     Coordinates knightPosition = { knightX, knightY };
 
     return produceUnit(KNIGHT, peasantPosition, knightPosition);
 }
 
-enum ActionResult producePeasant(int peasantX, int peasantY, int newPeasantX, int newPeasantY) {
+enum ActionResult producePeasant(long peasantX, long peasantY, long newPeasantX, long newPeasantY) {
     Coordinates peasantPosition = { peasantX, peasantY };
     Coordinates newPeasantPosition = { newPeasantX, newPeasantY };
 

@@ -17,7 +17,7 @@ typedef struct  {
     int lastMove;
 } Unit;
 
-Unit * unitNew(enum UnitType type, int player, Coordinates position, int turn);
+Unit * unitNew(enum UnitType type, int player, Coordinates position, long turn);
 void unitRemove(Unit * unit);
 
 char unitGetRepresentation(Unit * unit);
