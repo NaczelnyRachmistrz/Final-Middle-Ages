@@ -3,7 +3,7 @@
 #include <string.h>
 #include "parse.h"
 
-static const char *commands[] = {
+static const char * commands[] = {
     "INIT",
     "MOVE",
     "PRODUCE_KNIGHT",
@@ -12,10 +12,23 @@ static const char *commands[] = {
     "INVALID_INPUT"
 };
 
-static void copyArguments(int * toArray, int * fromArray, int count) {
-    for (int i = MAX_ARGUMENTS_COUNT - 1; i >= count; i--) {
-        toArray[i] = -1;
+static const int properCommandArgumentsCount[] = {
+    7,
+    4,
+    4,
+    4,
+    0
+};
+
+static int hasValidArgumentsCount(enum CommandType commandType, int commandArgumentsCount) {
+    if (commandType == INVALID_INPUT) {
+        return 1;
+    } else {
+        return properCommandArgumentsCount[commandType] == commandArgumentsCount;
     }
+}
+
+static void copyArguments(int * toArray, int * fromArray, int count) {
     while (count > 0) {
         toArray[--count] = fromArray[count];
     }
@@ -23,8 +36,12 @@ static void copyArguments(int * toArray, int * fromArray, int count) {
 
 Command * newCommand(enum CommandType type, int * commandArguments, int commandArgumentsCount) {
     Command * command = (Command *) malloc(sizeof(Command));
-    command->type = type;
-    copyArguments(command->arguments, commandArguments, commandArgumentsCount);
+    if (hasValidArgumentsCount(type, commandArgumentsCount)) {
+        command->type = type;
+        copyArguments(command->arguments, commandArguments, commandArgumentsCount);
+    } else {
+        command->type = INVALID_INPUT;
+    }
     return command;
 }
 
@@ -98,19 +115,10 @@ static Command * parseCommand(char * text) {
     int commandArgumentsCount = 0;
 
     char * commandText = (char *) malloc(sizeof(char) * MAX_COMMAND_LENGTH);
-    char * commandArgumentsText = (char *) malloc(sizeof(char) * MAX_COMMAND_LENGTH);
 
-    int sscanfResult = sscanf(text, "%s%[^\n]", commandText, commandArgumentsText);
-
-    if (sscanfResult == 1) {
-        if (parseCommandType(commandText, &commandType)) {
-            command = newCommand(INVALID_INPUT, NULL, 0);
-        } else {
-            command = newCommand(commandType, commandArguments, 0);
-        }
-    } else if (sscanfResult == 2) {
+    if (sscanf(text, "%s", commandText) == 1) {
         if (parseCommandType(commandText, &commandType)
-        || parseCommandArguments(commandArgumentsText, commandArguments, &commandArgumentsCount)) {
+        || parseCommandArguments(text + strlen(commandText), commandArguments, &commandArgumentsCount)) {
             command = newCommand(INVALID_INPUT, NULL, 0);
         } else {
             command = newCommand(commandType, commandArguments, commandArgumentsCount);
@@ -121,7 +129,6 @@ static Command * parseCommand(char * text) {
 
     free(text);
     free(commandText);
-    free(commandArgumentsText);
     return command;
 }
 
