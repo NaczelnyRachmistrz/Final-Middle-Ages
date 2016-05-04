@@ -4,7 +4,6 @@
 
 #include "engine.h"
 #include "map.h"
-#include "unit.h"
 
 #define PLAYERS_COUNT 2
 

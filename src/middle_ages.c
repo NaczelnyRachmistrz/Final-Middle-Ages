@@ -41,9 +41,9 @@ int main() {
             printTopLeft();
             endGame();
             switch (result) {
-                case ACTION_PLAYER1_WIN: printf("PLAYER 1 WIN"); break;
-                case ACTION_PLAYER2_WIN: printf("PLAYER 2 WIN"); break;
-                default: printf("DRAW"); break;
+                case ACTION_PLAYER1_WIN: fprintf(stderr, "player 1 won"); break;
+                case ACTION_PLAYER2_WIN: fprintf(stderr, "player 2 Won"); break;
+                default: fprintf(stderr, "draw"); break;
             }
             return 0;
         } else {
