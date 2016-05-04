@@ -33,10 +33,19 @@ int main() {
 
         removeCommand(command);
 
-        if (result == ACTION_OK) {
-            printTopLeft();
-        } else if (result == ACTION_OK_NO_DISPLAY) {
+        if (result == ACTION_OK_NO_DISPLAY) {
             continue;
+        } else if (result == ACTION_OK) {
+            printTopLeft();
+        } else if (result == ACTION_DRAW || result == ACTION_PLAYER1_WIN || result == ACTION_PLAYER2_WIN) {
+            printTopLeft();
+            endGame();
+            switch (result) {
+                case ACTION_PLAYER1_WIN: printf("PLAYER 1 WIN"); break;
+                case ACTION_PLAYER2_WIN: printf("PLAYER 2 WIN"); break;
+                default: printf("DRAW"); break;
+            }
+            return 0;
         } else {
             endGame();
             fprintf(stderr, "input error\n");

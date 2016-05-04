@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <assert.h>
 
 #include "engine.h"
 #include "map.h"
+#include "unit.h"
 
 #define PLAYERS_COUNT 2
 
@@ -52,6 +54,46 @@ static bool isGameInitialized() {
         }
     }
     return true;
+}
+
+static int getAliveKingsCount() {
+    int aliveKingsCount = PLAYERS_COUNT;
+    for (int i = 1; i <= PLAYERS_COUNT; i++) {
+        if (enginePlayerKings[i] == NULL) {
+            aliveKingsCount--;
+        }
+    }
+    return aliveKingsCount;
+}
+
+static bool isGameFinished() {
+    return getAliveKingsCount() <= 1;
+}
+
+static int getWinnerID() {
+    if (!isGameFinished()) {
+        return -1;
+    } else if (getAliveKingsCount() == 0) {
+        return 0;
+    }
+
+    for (int i = 1; i <= PLAYERS_COUNT; i++) {
+        if (enginePlayerKings[i] != NULL) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static enum ActionResult getGameState() {
+    int winnerId = getWinnerID();
+    switch (winnerId) {
+        case -1: return ACTION_OK;
+        case 0: return ACTION_DRAW;
+        case 1: return ACTION_PLAYER1_WIN;
+        case 2: return ACTION_PLAYER2_WIN;
+        default: return ACTION_INVALID_ARGUMENTS;
+    }
 }
 
 static bool isProperKingPosition(Coordinates position) {
@@ -150,15 +192,36 @@ static enum ActionResult canPerformActionAtPositions(Coordinates unitPosition, C
     return ACTION_OK;
 }
 
-static void makeMove(Unit * unit, Unit * field, Coordinates movePosition) {
+static void removeUnitBeforeBattle(Unit * unit) {
+    if (unit == NULL) {
+        return;
+    }
+    if (unit->type == KING) {
+        enginePlayerKings[unit->player] = NULL;
+    }
     mapRemoveUnit(unit->position);
-    mapRemoveUnit(movePosition);
+}
+
+static void addUnitAfterBattle(Unit * unit) {
+    if (unit == NULL) {
+        return;
+    }
+    if (unit->type == KING) {
+        enginePlayerKings[unit->player] = unit;
+    }
+    mapAddUnit(unit);
+}
+
+static void makeMove(Unit * unit, Unit * field, Coordinates movePosition) {
+    assert(unit != NULL);
+
+    removeUnitBeforeBattle(unit);
+    removeUnitBeforeBattle(field);
+
     unit->position = movePosition;
     unit->lastMove = engineMovesLeft - 1;
-    unit = unitFight(unit, field);
-    if (unit != NULL) {
-        mapAddUnit(unit);
-    }
+
+    addUnitAfterBattle(unitFight(unit, field));
 }
 
 enum ActionResult move(int unitX, int unitY, int moveX, int moveY) {
@@ -182,7 +245,7 @@ enum ActionResult move(int unitX, int unitY, int moveX, int moveY) {
     }
 
     makeMove(unit, field, movePosition);
-    return ACTION_OK;
+    return getGameState();
 }
 
 static enum ActionResult canProduceUnit(Unit * peasant) {
@@ -211,8 +274,7 @@ static enum ActionResult produceUnit(enum UnitType unitType, Coordinates peasant
         return ACTION_FIELD_ALREADY_OCCUPIED;
     }
 
-    unit = unitNew(unitType, enginePlayerTurn, unitPosition, engineMovesLeft);
-    mapAddUnit(unit);
+    mapAddUnit(unitNew(unitType, enginePlayerTurn, unitPosition, engineMovesLeft));
     peasant->lastMove = engineMovesLeft - 1;
     return  ACTION_OK;
 }
@@ -234,6 +296,9 @@ enum ActionResult producePeasant(int peasantX, int peasantY, int newPeasantX, in
 enum ActionResult endTurn() {
     if (enginePlayerTurn == PLAYERS_COUNT) {
         engineMovesLeft--;
+    }
+    if (engineMovesLeft < 0) {
+        return ACTION_DRAW;
     }
     enginePlayerTurn = enginePlayerTurn % PLAYERS_COUNT + 1;
     return ACTION_OK_NO_DISPLAY;
