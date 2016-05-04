@@ -3,7 +3,6 @@
 
 #include "engine.h"
 #include "map.h"
-#include "unit.h"
 
 #define PLAYERS_COUNT 2
 
@@ -131,19 +130,7 @@ static bool isProperPosition(Coordinates position) {
     return position.x >= 1 && position.x <= engineMapSize && position.y >= 1 && position.y <= engineMapSize;
 }
 
-enum ActionResult move(int unitX, int unitY, int moveX, int moveY) {
-    if (!isGameInitialized()) {
-        return ACTION_GAME_NOT_INITIALIZED;
-    }
-
-    Coordinates unitPosition = { unitX, unitY };
-    Coordinates movePosition = { moveX, moveY };
-
-    if (!isProperPosition(unitPosition) || !isProperPosition(movePosition) || coordinatesDistance(unitPosition, movePosition) != 1) {
-       return ACTION_INVALID_COORDINATES;
-    }
-
-    Unit * unit = mapGetUnit(unitPosition);
+static enum ActionResult canUnitPerformAction(Unit *unit) {
     if (unit == NULL) {
         return ACTION_UNIT_DOES_NOT_EXIST;
     } else if (unit->player != enginePlayerTurn) {
@@ -151,47 +138,72 @@ enum ActionResult move(int unitX, int unitY, int moveX, int moveY) {
     } else if (unit->lastMove < engineMovesLeft) {
         return ACTION_UNIT_CANNOT_PERFORM_ACTION;
     }
+    return ACTION_OK;
+}
 
-    Unit * moveField = mapGetUnit(movePosition);
-    if (moveField != NULL && moveField->player == enginePlayerTurn) {
-        return ACTION_FIELD_ALREADY_OCCUPIED;
+static enum ActionResult canPerformActionAtPositions(Coordinates unitPosition, Coordinates actionPosition) {
+    if (!isProperPosition(unitPosition)
+        || !isProperPosition(actionPosition)
+        || coordinatesDistance(unitPosition, actionPosition) != 1) {
+        return ACTION_INVALID_COORDINATES;
     }
+    return ACTION_OK;
+}
 
-    mapRemoveUnit(unitPosition);
+static void makeMove(Unit * unit, Unit * field, Coordinates movePosition) {
+    mapRemoveUnit(unit->position);
     mapRemoveUnit(movePosition);
-
     unit->position = movePosition;
     unit->lastMove = engineMovesLeft - 1;
-
-    unit = unitFight(unit, moveField);
-
+    unit = unitFight(unit, field);
     if (unit != NULL) {
         mapAddUnit(unit);
     }
+}
 
+enum ActionResult move(int unitX, int unitY, int moveX, int moveY) {
+    Coordinates unitPosition = { unitX, unitY };
+    Coordinates movePosition = { moveX, moveY };
+
+    if (!isGameInitialized()) {
+        return ACTION_GAME_NOT_INITIALIZED;
+    } else if (canPerformActionAtPositions(unitPosition, movePosition) != ACTION_OK) {
+        return canPerformActionAtPositions(unitPosition, movePosition);
+    }
+
+    Unit * unit = mapGetUnit(unitPosition);
+    if (canUnitPerformAction(unit) != ACTION_OK) {
+        return canUnitPerformAction(unit);
+    }
+
+    Unit * field = mapGetUnit(movePosition);
+    if (field != NULL && field->player == enginePlayerTurn) {
+        return ACTION_FIELD_ALREADY_OCCUPIED;
+    }
+
+    makeMove(unit, field, movePosition);
+    return ACTION_OK;
+}
+
+static enum ActionResult canProduceUnit(Unit * peasant) {
+    if (canUnitPerformAction(peasant) != ACTION_OK) {
+        return canUnitPerformAction(peasant);
+    } if (peasant->type != PEASANT || peasant->lastMove - 2 < engineMovesLeft) {
+        return ACTION_UNIT_CANNOT_PERFORM_ACTION;
+    }
     return ACTION_OK;
 }
 
 static enum ActionResult produceUnit(enum UnitType unitType, Coordinates peasantPosition, Coordinates unitPosition) {
     if (!isGameInitialized()) {
         return ACTION_GAME_NOT_INITIALIZED;
-    }
-
-    if (!isProperPosition(peasantPosition)
-        || !isProperPosition(unitPosition)
-        || coordinatesDistance(peasantPosition, unitPosition) != 1) {
-        return ACTION_INVALID_COORDINATES;
+    } else if (canPerformActionAtPositions(peasantPosition, unitPosition) != ACTION_OK) {
+        return canPerformActionAtPositions(peasantPosition, unitPosition);
     }
 
     Unit * peasant = mapGetUnit(peasantPosition);
-    if (peasant == NULL) {
-        return ACTION_UNIT_DOES_NOT_EXIST;
-    } else if (peasant->player != enginePlayerTurn) {
-        return ACTION_PERMISSION_DENIED;
-    } else if (peasant->type != PEASANT) {
-        return ACTION_UNIT_CANNOT_PERFORM_ACTION;
-    } else if (peasant->lastMove - 2 < engineMovesLeft) {
-        return ACTION_UNIT_CANNOT_PERFORM_ACTION;
+    if (canProduceUnit(peasant) != ACTION_OK) {
+        return canProduceUnit(peasant);
     }
 
     Unit * unit = mapGetUnit(unitPosition);
@@ -201,7 +213,6 @@ static enum ActionResult produceUnit(enum UnitType unitType, Coordinates peasant
 
     unit = unitNew(unitType, enginePlayerTurn, unitPosition, engineMovesLeft);
     mapAddUnit(unit);
-
     peasant->lastMove = engineMovesLeft - 1;
     return  ACTION_OK;
 }

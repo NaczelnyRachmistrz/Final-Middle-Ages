@@ -95,7 +95,7 @@ static Command * parseCommand(char * text) {
 
     enum CommandType commandType;
     int commandArguments[MAX_ARGUMENTS_COUNT];
-    int commandArgumentsCount;
+    int commandArgumentsCount = 0;
 
     char * commandText = (char *) malloc(sizeof(char) * MAX_COMMAND_LENGTH);
     char * commandArgumentsText = (char *) malloc(sizeof(char) * MAX_COMMAND_LENGTH);

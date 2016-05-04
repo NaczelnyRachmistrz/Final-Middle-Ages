@@ -11,7 +11,7 @@ static void unitListRemoveNode(UnitListNode unitListNode) {
 }
 
 void unitListRemove(UnitListNode unitList) {
-    UnitListNode currentUnitListNode = unitList;
+    UnitListNode currentUnitListNode;
     while (unitList != NULL) {
         currentUnitListNode = unitList;
         unitList = unitList->next;
