@@ -14,7 +14,7 @@ typedef struct  {
     int player;
 
     Coordinates position;
-    int lastMove;
+    long lastMove;
 } Unit;
 
 Unit * unitNew(enum UnitType type, int player, Coordinates position, long turn);

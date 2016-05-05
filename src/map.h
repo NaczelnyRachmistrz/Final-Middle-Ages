@@ -5,8 +5,11 @@
 #include "unit.h"
 #include "unitlist.h"
 
-void mapInitialize();
-void mapRemove();
+void mapInitialize(long size);
+long mapGetSize();
+void mapDestroy();
+
+void mapPrintFragment(Coordinates from, Coordinates to);
 
 void mapAddUnit(Unit * unit);
 Unit * mapGetUnit(Coordinates position);

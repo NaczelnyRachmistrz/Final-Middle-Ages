@@ -1,27 +1,44 @@
 #include "map.h"
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 
-#define HASHTABLE_SIZE 1000003
-#define HASHING_INT 500009
+#define HASH_SIZE 1000003
+#define HASH_INT 25013
 
-static UnitListNode map[HASHTABLE_SIZE];
+static UnitListNode map[HASH_SIZE];
+static long mapSize = -1;
 
 static int indexFromCoordinates(Coordinates coordinates) {
-    unsigned long long int dividend = (unsigned long long int)coordinates.x * HASHING_INT + coordinates.y;
-    return (int) (dividend % HASHTABLE_SIZE);
+    unsigned long long int dividend = (unsigned long long int)coordinates.x * HASH_INT + coordinates.y;
+    return (int) (dividend % HASH_SIZE);
 }
 
-void mapInitialize() {
-    for (int i = 0; i < HASHTABLE_SIZE; i++) {
+void mapInitialize(long size) {
+    mapSize = size;
+    for (int i = 0; i < HASH_SIZE; i++) {
         map[i] = unitListNew();
     }
 }
 
-void mapRemove() {
-    for (int i = 0; i < HASHTABLE_SIZE; i++) {
+void mapDestroy() {
+    for (int i = 0; i < HASH_SIZE; i++) {
         unitListRemove(map[i]);
     }
+}
+
+void mapPrintFragment(Coordinates from, Coordinates to) {
+    assert(from.x <= to.x && from.y <= to.y);
+    for (long y = from.y; y <= to.y; y++) {
+        for (long x = from.x; x <= to.x; x++) {
+            Coordinates position = { x, y };
+            Unit * unit = mapGetUnit(position);
+            char unitRepresentation = unitGetRepresentation(unit);
+            printf("%c", unitRepresentation);
+        }
+        printf("\n");
+    }
+    printf("\n");
 }
 
 void mapAddUnit(Unit * unit) {
@@ -39,4 +56,8 @@ Unit * mapGetUnit(Coordinates position) {
 void mapRemoveUnit(Coordinates position) {
     int index = indexFromCoordinates(position);
     unitListRemoveUnit(position, &map[index]);
+}
+
+long mapGetSize() {
+    return mapSize;
 }

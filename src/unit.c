@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <assert.h>
 #include "unit.h"
 
 Unit * unitNew(enum UnitType type, int player, Coordinates position, long turn) {
@@ -15,6 +16,7 @@ void unitRemove(Unit *unit) {
 }
 
 static char toLowercase(char c) {
+    assert(c >= 'A' && c <= 'Z');
     return (char)(c + ('a' - 'A'));
 }
 

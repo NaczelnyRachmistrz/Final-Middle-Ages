@@ -7,7 +7,7 @@ int main() {
 
     while (1) {
         Command * command = getCommandFromInput();
-        enum ActionResult result = ACTION_INVALID_ARGUMENTS;
+        enum ActionResult result = ACTION_ERROR;
 
         switch (command->type) {
             case INIT:
@@ -27,7 +27,7 @@ int main() {
                 result = endTurn();
                 break;
             case INVALID_INPUT:
-                result = ACTION_INVALID_ARGUMENTS;
+                result = ACTION_ERROR;
                 break;
         }
 
@@ -42,7 +42,7 @@ int main() {
             endGame();
             switch (result) {
                 case ACTION_PLAYER1_WIN: fprintf(stderr, "player 1 won"); break;
-                case ACTION_PLAYER2_WIN: fprintf(stderr, "player 2 Won"); break;
+                case ACTION_PLAYER2_WIN: fprintf(stderr, "player 2 won"); break;
                 default: fprintf(stderr, "draw"); break;
             }
             return 0;
