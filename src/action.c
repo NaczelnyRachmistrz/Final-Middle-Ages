@@ -16,7 +16,7 @@ bool isGameInitialized() {
 
 static bool isProperMapSize(long mapSize) {
     if (initializedMapSize == -1) {
-        return mapSize >= 8 && mapSize < (long)2<<31;
+        return mapSize >= 8 && mapSize < ((long long int)2)<<31;
     } else {
         return mapSize == initializedMapSize;
     }
@@ -24,7 +24,7 @@ static bool isProperMapSize(long mapSize) {
 
 static bool isProperMaxMoves(long maxMoves) {
     if (initializedMaxMoves == -1) {
-        return maxMoves >= 1 && maxMoves < (long)2<<31;
+        return maxMoves >= 1 && maxMoves < ((long long int)2)<<31;
     } else {
         return  maxMoves == initializedMaxMoves;
     }
@@ -55,7 +55,8 @@ bool verifyInitArguments(long mapSize, long maxMoves, int player, Coordinates fi
         && isProperMaxMoves(maxMoves)
         && isProperPlayer(player)
         && isProperKingPosition(firstKingPosition, &initializedFirstKingPosition, mapSize)
-        && isProperKingPosition(secondKingPosition, &initializedSecondKingPosition, mapSize)) {
+        && isProperKingPosition(secondKingPosition, &initializedSecondKingPosition, mapSize)
+        && coordinatesDistance(firstKingPosition, secondKingPosition) >= 8) {
         initializedMapSize = mapSize;
         initializedMaxMoves = maxMoves;
         initializedPlayers[player] = true;

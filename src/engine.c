@@ -141,8 +141,8 @@ enum ActionResult endTurn() {
     if (engineActivePlayer == PLAYERS_COUNT) {
         engineMovesLeft--;
     }
-    if (engineMovesLeft < 0) {
-        return ACTION_DRAW;
+    if (engineMovesLeft <= 0) {
+        return ACTION_DRAW_NO_DISPLAY;
     }
     engineActivePlayer = engineActivePlayer % PLAYERS_COUNT + 1;
     return ACTION_OK_NO_DISPLAY;

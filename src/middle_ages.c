@@ -37,13 +37,15 @@ int main() {
             continue;
         } else if (result == ACTION_OK) {
             printTopLeft();
-        } else if (result == ACTION_DRAW || result == ACTION_PLAYER1_WIN || result == ACTION_PLAYER2_WIN) {
-            printTopLeft();
+        } else if (result == ACTION_DRAW_NO_DISPLAY || result == ACTION_DRAW || result == ACTION_PLAYER1_WIN || result == ACTION_PLAYER2_WIN) {
+            if (result != ACTION_DRAW_NO_DISPLAY) {
+                printTopLeft();
+            }
             endGame();
             switch (result) {
-                case ACTION_PLAYER1_WIN: fprintf(stderr, "player 1 won"); break;
-                case ACTION_PLAYER2_WIN: fprintf(stderr, "player 2 won"); break;
-                default: fprintf(stderr, "draw"); break;
+                case ACTION_PLAYER1_WIN: fprintf(stderr, "player 1 won\n"); break;
+                case ACTION_PLAYER2_WIN: fprintf(stderr, "player 2 won\n"); break;
+                default: fprintf(stderr, "draw\n"); break;
             }
             return 0;
         } else {
