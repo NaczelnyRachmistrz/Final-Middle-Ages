@@ -22,7 +22,15 @@ set(SOURCE_FILES
         src/parse.c
         src/parse.h
         src/unit.h
-        src/unit.c src/map.h src/map.c src/unitlist.c src/unitlist.h src/coordinates.c src/coordinates.h src/action.c src/action.h)
+        src/unit.c
+        src/map.h
+        src/map.c
+        src/unitlist.c
+        src/unitlist.h
+        src/coordinates.c
+        src/coordinates.h
+        src/action.c
+        src/action.h)
 
 add_executable(middle_ages ${SOURCE_FILES})
 
