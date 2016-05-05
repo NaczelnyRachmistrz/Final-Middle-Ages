@@ -138,6 +138,10 @@ enum ActionResult producePeasant(long peasantX, long peasantY, long newPeasantX,
 }
 
 enum ActionResult endTurn() {
+    if (!isGameInitialized()) {
+        return ACTION_ERROR;
+    }
+    
     if (engineActivePlayer == PLAYERS_COUNT) {
         engineMovesLeft--;
     }

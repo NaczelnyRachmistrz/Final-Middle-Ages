@@ -16,7 +16,7 @@ bool isGameInitialized() {
 
 static bool isProperMapSize(long mapSize) {
     if (initializedMapSize == -1) {
-        return mapSize >= 8 && mapSize < ((long long int)2)<<31;
+        return mapSize >= 8 && mapSize < (long long)2 << 30;
     } else {
         return mapSize == initializedMapSize;
     }
@@ -24,7 +24,7 @@ static bool isProperMapSize(long mapSize) {
 
 static bool isProperMaxMoves(long maxMoves) {
     if (initializedMaxMoves == -1) {
-        return maxMoves >= 1 && maxMoves < ((long long int)2)<<31;
+        return maxMoves >= 1 && maxMoves < (long long) 2 << 30;
     } else {
         return  maxMoves == initializedMaxMoves;
     }
