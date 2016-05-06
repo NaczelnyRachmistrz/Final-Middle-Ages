@@ -1,17 +1,17 @@
 #include "unitlist.h"
 #include <stdlib.h>
 
-UnitListNode unitListNew() {
+UnitList unitListNew() {
     return NULL;
 }
 
-static void unitListRemoveNode(UnitListNode unitListNode) {
+static void unitListRemoveNode(UnitList unitListNode) {
     free(unitListNode->unit);
     free(unitListNode);
 }
 
-void unitListRemove(UnitListNode unitList) {
-    UnitListNode currentUnitListNode;
+void unitListRemove(UnitList unitList) {
+    UnitList currentUnitListNode;
     while (unitList != NULL) {
         currentUnitListNode = unitList;
         unitList = unitList->next;
@@ -19,14 +19,14 @@ void unitListRemove(UnitListNode unitList) {
     }
 }
 
-void unitListAddUnit(Unit *unit, UnitListNode * unitList) {
-    UnitListNode unitListNode = (UnitListNode) malloc(sizeof(struct UnitList));
+void unitListAddUnit(Unit *unit, UnitList * unitList) {
+    UnitList unitListNode = (UnitList) malloc(sizeof(struct UnitListNode));
     unitListNode->unit = unit;
     unitListNode->next = *unitList;
     *unitList = unitListNode;
 }
 
-Unit * unitListGetUnit(Coordinates position, UnitListNode unitList) {
+Unit * unitListGetUnit(Coordinates position, UnitList unitList) {
     while (unitList != NULL) {
         if (coordinatesCompare(unitList->unit->position, position) == 0) {
             return unitList->unit;
@@ -36,9 +36,9 @@ Unit * unitListGetUnit(Coordinates position, UnitListNode unitList) {
     return NULL;
 }
 
-void unitListRemoveUnit(Coordinates position, UnitListNode *unitList) {
-    UnitListNode * lastUnitListNode = unitList;
-    UnitListNode currentListNode = *unitList;
+void unitListRemoveUnit(Coordinates position, UnitList *unitList) {
+    UnitList * lastUnitListNode = unitList;
+    UnitList currentListNode = *unitList;
     while (currentListNode != NULL) {
         if (coordinatesCompare(currentListNode->unit->position, position) == 0) {
             *lastUnitListNode = currentListNode->next;

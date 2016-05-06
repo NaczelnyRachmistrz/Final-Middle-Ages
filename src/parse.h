@@ -23,7 +23,7 @@
 #define MAX_ARGUMENTS_COUNT 7
 
 /**
- * Available commands types
+ * Available command types
  * @see Command
  */
 enum CommandType {
@@ -36,18 +36,19 @@ enum CommandType {
 };
 
 /**
- * Command containing type and arguments
+ * Structure containing type and arguments
  * @see getCommandFromInput
  * @see removeCommand
  */
 typedef struct {
-    enum CommandType type;
-    long arguments[MAX_ARGUMENTS_COUNT];
+    enum CommandType type; /**< type of the command */
+    long arguments[MAX_ARGUMENTS_COUNT];/**< additional parameters */
 } Command;
 
 /**
  * @brief Reads and parses line from stdin
- * @detail Reads characters from stdin up to '\n'
+ *
+ * Reads characters from stdin up to '\n'
  * lines longer than MAX_COMMAND_LENGTH are truncated and INVALID_COMMAND is returned
  * @return Pointer to parsed command
  */

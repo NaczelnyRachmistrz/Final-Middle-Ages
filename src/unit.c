@@ -44,7 +44,10 @@ Unit * unitFight(Unit * firstUnit, Unit * secondUnit) {
         return secondUnit;
     } else if (secondUnit == NULL) {
         return firstUnit;
-    } else if (firstUnit->type == secondUnit->type) {
+    }
+    assert(firstUnit != secondUnit);
+    assert(firstUnit->player != secondUnit->player);
+    if (firstUnit->type == secondUnit->type) {
         unitRemove(firstUnit);
         unitRemove(secondUnit);
         return NULL;

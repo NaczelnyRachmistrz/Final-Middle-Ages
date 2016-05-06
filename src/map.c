@@ -6,7 +6,7 @@
 #define HASH_SIZE 1000003
 #define HASH_INT 25013
 
-static UnitListNode map[HASH_SIZE];
+static UnitList map[HASH_SIZE];
 static long mapSize = -1;
 
 static int indexFromCoordinates(Coordinates coordinates) {

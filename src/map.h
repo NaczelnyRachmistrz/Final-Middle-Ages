@@ -1,6 +1,6 @@
 /**
  * @file map.h
- * @brief Hashtable of units
+ * Hashtable of units
  */
 #ifndef MIDDLE_AGES_MAP_H
 #define MIDDLE_AGES_MAP_H
@@ -11,7 +11,8 @@
 
 /**
  * @brief Initializes map
- * @detail Allocates memory for hashtable
+ *
+ * Allocates memory for hashtable
  * and sets size of the game map
  * @param size size of the game map
  */
@@ -25,7 +26,8 @@ long mapGetSize();
 
 /**
  * @brief Removes map
- * @detail Frees memory of hashtable, removes all lists and units on the map
+ *
+ * Frees memory of hashtable, removes all lists and units on the map
  */
 void mapDestroy();
 
@@ -51,7 +53,8 @@ Unit * mapGetUnit(Coordinates position);
 
 /**
  * @brief Removes unit from the map
- * @detail Unit removed from map is not destroyed
+ * 
+ * Unit removed from the map is not destroyed
  * @param position coordinates to remove unit from
  */
 void mapRemoveUnit(Coordinates position);

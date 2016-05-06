@@ -1,6 +1,14 @@
+/**
+ * @file engine.h
+ * Implements available commands
+ * @see Command
+ */
 #ifndef MIDDLE_AGES_ENGINE_H
 #define MIDDLE_AGES_ENGINE_H
 
+/**
+ * @brief Possible output codes
+ */
 enum ActionResult {
     // OK
     ACTION_OK,
@@ -14,6 +22,9 @@ enum ActionResult {
     ACTION_ERROR
 };
 
+/**
+ *
+ */
 void startGame();
 
 void endGame();
