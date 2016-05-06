@@ -1,6 +1,7 @@
 /**
  * @file unitlist.h
- * List of units
+ * UnitList structure and functions to operate on it
+ * @see Unit
  */
 #ifndef MIDDLE_AGES_UNITLIST_H
 #define MIDDLE_AGES_UNITLIST_H
@@ -8,16 +9,14 @@
 #include "coordinates.h"
 #include "unit.h"
 
-
 struct UnitListNode;
 /**
- * @brief Same as UnitListNode *
+ * @brief Shortcut for UnitListNode *
  */
 typedef struct UnitListNode * UnitList;
 
 /**
- * @struct UnitListNode
- * One element of the list
+ * Single element of UnitList
  */
 struct UnitListNode {
     Unit * unit; /**< unit in current node*/
@@ -31,14 +30,14 @@ struct UnitListNode {
 UnitList unitListNew();
 
 /**
- * @brief Destructor for the UnitList structure
- * Removes every unit in unitList and the unitList itself
+ * @brief Destructor for the UnitList structure.
+ * Removes every unit in unitList and the unitList itself.
  * @param unitList UnitList to be removed
  */
 void unitListRemove(UnitList unitList);
 
 /**
- * @brief Adds unit to the list
+ * @brief Adds unit to the list.
  * @param unit pointer to the unit to be added
  * @param unitList list to add unit to
  */
@@ -53,8 +52,8 @@ void unitListAddUnit(Unit *unit, UnitList *unitList);
 Unit * unitListGetUnit(Coordinates position, UnitList unitList);
 
 /**
- * @brief Removes unit from the list
- * Unit removed from the list is not destroyed
+ * @brief Removes unit from the list.
+ * unit removed from the list is not destroyed.
  * @param position position of the Unit to be removed from the list
  * @param unitList pointer to the UnitList to remove unit from
  * @see Unit

@@ -1,6 +1,6 @@
 /**
  * @file parse.h
- * @brief Loading and parsing input
+ * Reading input from stdin and parsing it into a Command
  */
 #ifndef MIDDLE_AGES_PARSE_H
 #define MIDDLE_AGES_PARSE_H

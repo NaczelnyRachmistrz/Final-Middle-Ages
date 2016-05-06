@@ -1,7 +1,8 @@
+#include "engine.h"
+
 #include <stdio.h>
 #include <assert.h>
 
-#include "engine.h"
 #include "coordinates.h"
 #include "unit.h"
 #include "map.h"

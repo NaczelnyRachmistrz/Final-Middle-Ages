@@ -1,13 +1,13 @@
 /**
  * @file coordinates.h
- * Library implementing coordinates structure and functions on them
+ * Coordinates structure and functions to operate on it
  */
 #ifndef MIDDLE_AGES_COORDINATES_H
 #define MIDDLE_AGES_COORDINATES_H
 
 /**
  * @struct Coordinates
- * @brief Represents pair of long int
+ * @brief Tuple of x and y integers
  */
 typedef struct {
     long x; /**< abscissa */
@@ -15,8 +15,8 @@ typedef struct {
 } Coordinates;
 
 /**
- * @brief Compares coordinates
- * Lexicographically compares given coordinates
+ * @brief Compares coordinates.
+ * Lexicographically compares given coordinates.
  * @param a coordinates against which comparison is done
  * @param b coordinates to compare with
  * @return result of comparison
@@ -24,10 +24,10 @@ typedef struct {
 int coordinatesCompare(Coordinates a, Coordinates b);
 
 /**
- * @brief Measures the distance between given coordinates
- * Measure is done in the maximum norm
- * @param a
- * @param b
+ * @brief Measures the distance between given coordinates.
+ * Measure is done in the maximum norm.
+ * @param a first coordinates
+ * @param b second coordinates
  * @returns distance between given coordinates
  */
 long coordinatesDistance(Coordinates a, Coordinates b);

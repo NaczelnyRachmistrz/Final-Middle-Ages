@@ -1,6 +1,7 @@
 /**
  * @file map.h
- * Hashtable of units
+ * Hashtable of Units and functions to operate on it
+ * @see Unit
  */
 #ifndef MIDDLE_AGES_MAP_H
 #define MIDDLE_AGES_MAP_H

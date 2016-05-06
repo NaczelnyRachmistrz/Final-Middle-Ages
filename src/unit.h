@@ -1,6 +1,6 @@
 /**
  * @file unit.h
- * Unit
+ * Unit structure and functions to operate on it
  */
 #ifndef MIDDLE_AGES_UNITS_H
 #define MIDDLE_AGES_UNITS_H
@@ -19,7 +19,7 @@ enum UnitType {
 
 /**
  * @struct Unit
- * @brief Represents one unit in game
+ * @brief single in-game unit
  */
 typedef struct  {
     enum UnitType type; /**< Type of the unit */

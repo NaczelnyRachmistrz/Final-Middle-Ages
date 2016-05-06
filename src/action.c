@@ -1,8 +1,9 @@
 #include "action.h"
-#include "unit.h"
-#include "map.h"
 
 #include <stdlib.h>
+
+#include "unit.h"
+#include "map.h"
 
 static long initializedMapSize = -1;
 static long initializedMaxMoves = -1;
