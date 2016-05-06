@@ -42,7 +42,7 @@ enum CommandType {
  */
 typedef struct {
     enum CommandType type; /**< type of the command */
-    long arguments[MAX_ARGUMENTS_COUNT];/**< additional parameters */
+    long args[MAX_ARGUMENTS_COUNT];/**< additional parameters */
 } Command;
 
 /**

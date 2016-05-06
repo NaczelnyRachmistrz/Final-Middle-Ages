@@ -43,7 +43,7 @@ Command * newCommand(enum CommandType type, long * commandArguments, int command
 
     if (hasValidArgumentsCount(type, commandArgumentsCount)) {
         command->type = type;
-        copyArguments(command->arguments, commandArguments, commandArgumentsCount);
+        copyArguments(command->args, commandArguments, commandArgumentsCount);
     } else {
         command->type = INVALID_INPUT;
     }
