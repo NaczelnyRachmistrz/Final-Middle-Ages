@@ -1,14 +1,16 @@
+ /** @file
+    Parser of input commands.
+
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include "parse.h"
 
-typedef struct defCommand {
-    char name[16];
-    int data[7];
-} Command;
-
-
+/**
+ * Auxiliary function, checks the correctness of white signs in the input line.
+ **/
 static bool checkInputCorrectness(char* input) {
 	if (input[0] == ' ' || input[0] == '\t' || input[0] == '\n') {
 		return false;
@@ -58,7 +60,8 @@ Command parseCommand() {
 		strcpy(ret.name, "WRONG_INPUT");
 	}
 	if (strcmp(ret.name, "INIT") == 0) {
-		temp = sscanf(line, "%*s%*d%*d%*d%*d%d%d%d%d", &ret.data[4], &ret.data[5], &ret.data[6], &temp2);
+		temp = sscanf(line, "%*s%*d%*d%*d%*d%d%d%d%d", &ret.data[4], 
+			&ret.data[5], &ret.data[6], &temp2);
 		if (temp < 3 || temp > 3 || !checkInputCorrectness(line)) {
 			strcpy(ret.name, "WRONG_INPUT");
 		}

@@ -1,31 +1,66 @@
+ /** @file
+    Game engine.
+
+ */
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include "engine.h"
 /* DATA STRUCTURE */
 
+/**
+ * Enum with all kinds of pawns.
+ **/
 enum PieceType {KING, KNIGHT, PEASANT};
 
+/**
+ * Data structure with the positon, owner and turn of last move of a pawn.
+ **/
 typedef struct piece {
-	enum PieceType type;
-	int owner, x, y, lastMove;
+	enum PieceType type; /**< Type of the piece. */
+	int owner; /**< ID of a player. */
+	int x; /**< Column of a pawn */
+	int y; /**< Row of a pawn */
+	int lastMove; /**< Number of turns left when the last move was done. */
 } Piece;
 
+/**
+ * List-type data structure of pieces.
+ **/
 typedef struct pieceList {
-	Piece firstPiece;
-	struct pieceList* next;
+	Piece firstPiece; /**< First piece on the list */
+	struct pieceList* next; /**< Pointer to the list tail. */
 } PieceList;
 
 /* REQUIRED DATA */
 
+/**
+ * List of first player's pieces.
+ **/
 	PieceList* firstPlayer;
+/**
+ * List of second player's pieces.
+ **/
 	PieceList* secondPlayer;
+/**
+ * Size of the board.
+ **/
 	int boardSize;
+/**
+ * Number of turns left.
+ **/
 	int turnsLeft;
+/**
+ * Visualization of board's topleft corner.
+ **/
 	char topleft[11][11];
 	
 /* AUXILIARY FUNCTIONS */
 
-void clearPieceList(PieceList* list) {
+/**
+ * Deletes given pieceList and frees memory.
+ * @param[in] list Pointer to the list.
+ **/
+static void clearPieceList(PieceList* list) {
 	if (list == NULL) {
 		return;
 	}
@@ -35,13 +70,25 @@ void clearPieceList(PieceList* list) {
 	free(list);
 	return;
 }
+
+/**
+ * Clears the piece lists of both players.
+ **/
 void clearAll() {
 	clearPieceList(firstPlayer);
 	clearPieceList(secondPlayer);
 	return;
 }
 
-void putTopleft(int x, int y, enum PieceType p, int pl) {
+
+/**
+ * Updates topleft corner of the board.
+ * @param[in] x Column of the position.
+ * @param[in] y Row of the positon.
+ * @param[in] p Kind of pawn to be set on the given position.
+ * @param[in] pl Owner of the pawn.
+ **/
+static void putTopleft(int x, int y, enum PieceType p, int pl) {
 	if (x > 10 || y > 10) {
 		return;
 	}
@@ -60,31 +107,63 @@ void putTopleft(int x, int y, enum PieceType p, int pl) {
 	return;
 }
 
-void clearPosition(int x, int y) {
+/**
+ * Clears a position from the topleft corner of the board
+ * @param[in] x Column of the position.
+ * @param[in] y Row of the position.
+ **/
+static void clearPosition(int x, int y) {
 	if (x > 10 || y > 10) {
 		return;
 	}
 	topleft[y][x] = '.';
 }
 
-int dist(int a, int b) {
+/**
+ * Return |a-b|.
+ **/
+static int dist(int a, int b) {
 	if (a > b) {
 		return a - b;
 	}
 	return b - a;
 }
 
-int currentPlayer;
-int winner = 0;
-int endTurnCounter = 0;
-int initCounter = 0;
-int initValue[7];
+/**
+ * ID of current player.
+ **/
+static int currentPlayer;
+/**
+ * Variable, winner = 0 when game is not over yet, winner = 3 when game is drawn,
+ * ID of the winner otherwise.
+ **/
+static int winner = 0;
+/**
+ * Variable, counts the number of turns.
+ **/
+static int endTurnCounter = 0;
+/**
+ * Checks the number of INIT commands.
+ **/
+static int initCounter = 0;
+/**
+ * Array with correct INIT data.
+ **/
+static int initValue[7];
 
 bool checkWinner() {
 	return (winner != 0);
 }
 
-int fight(Piece p1, Piece p2) {
+/** 
+ * Checks whick piece wins the battle. Additionally, sets the winner if the king is beaten.
+ * @param[in] p1 First piece.
+ * @param[in] p2 Second piece.
+ * @return 1 if the first piece wins,
+ * @return 2 if the first second piece wins,
+ * @return 3 if both pieces die.
+ **/
+static int fight(Piece p1, Piece p2) {
 	if (p1.type == KING && p2.type == KING) {
 		winner = 3;
 	}
@@ -109,7 +188,10 @@ int fight(Piece p1, Piece p2) {
 	return 2;
 }
 
-bool checkPositions(int x1, int x2, int y1, int y2) {
+/**
+ * Check if the INIT coordinates are valid.
+ **/
+static bool checkPositions(int x1, int x2, int y1, int y2) {
 	bool ret = true;
 	ret &= (x1 > 0 && x1 < boardSize - 2);
 	ret &= (x2 > 0 && x2 < boardSize - 2);
@@ -118,7 +200,10 @@ bool checkPositions(int x1, int x2, int y1, int y2) {
 	return ret;
 }
 
-bool wrongPosition(int x1, int y1, int x2, int y2) {
+/** 
+ * Returns true, if the given coordinates do not fit the board.
+ **/
+static bool wrongPosition(int x1, int y1, int x2, int y2) {
 	bool ret = true;
 	ret &= (x1 > 0 && x1 <= boardSize);
 	ret &= (x2 > 0 && x2 <= boardSize);
@@ -127,7 +212,10 @@ bool wrongPosition(int x1, int y1, int x2, int y2) {
 	return !ret;
 }
 
-bool incorrectMove(int x1, int y1, int x2, int y2) {
+/**
+ * Checks if the move is correct.
+ **/
+static bool incorrectMove(int x1, int y1, int x2, int y2) {
 	int x, y;
 	if (wrongPosition(x1, y1, x2, y2)) {
 		return true;
@@ -143,7 +231,10 @@ bool incorrectMove(int x1, int y1, int x2, int y2) {
 	return false;
 }
 
-bool checkInitValues(int n, int k, int p, int x1, int y1, int x2, int y2) {
+/**
+ * Function checks, if the second INIT command is valid.
+ **/
+static bool checkInitValues(int n, int k, int p, int x1, int y1, int x2, int y2) {
 	bool ret = true;
 	ret &= (n == initValue[0]);
 	ret &= (k == initValue[1]);
@@ -155,7 +246,10 @@ bool checkInitValues(int n, int k, int p, int x1, int y1, int x2, int y2) {
 	return ret;
 }
 
-PieceList** setPlayer1() {
+/**
+ * Returns pointer to the piece list of the current player.
+ **/
+static PieceList** setPlayer1() {
 	if (currentPlayer == 1) {
 		return &firstPlayer;
 	} else {
@@ -163,7 +257,10 @@ PieceList** setPlayer1() {
 	}
 }
 
-PieceList** setPlayer2() {
+/**
+ * Return pointer to the piece list of the player who is waiting for his move.
+ **/
+static PieceList** setPlayer2() {
 	if (currentPlayer == 1) {
 		return &secondPlayer;
 	} else {
@@ -171,7 +268,13 @@ PieceList** setPlayer2() {
 	}	
 }	
 
-PieceList** pointerToPosition(int x, int y, PieceList** tempList) {
+/**
+ * Returns a pointer to the pieceList pointer, where the first piece is on the given position.
+ * @param[in] x Column of the pawn.
+ * @param[in] y Row of the pawn.
+ * @param[in] tempList Pointer to the pieceList pointer in which we are looking for a piece.
+ **/
+static PieceList** pointerToPosition(int x, int y, PieceList** tempList) {
 	PieceList** ret = NULL;
 	while (*tempList != NULL) {
 		if ((*tempList)->firstPiece.x == x && (*tempList)->firstPiece.y == y) {
@@ -183,8 +286,16 @@ PieceList** pointerToPosition(int x, int y, PieceList** tempList) {
 	return ret;
 }
 
-bool addPiece(int x, int y, PieceList** tempList, enum PieceType p) {
-	
+/**
+ * Adds piece in the end of the given list.
+ * @param[in] x Column of the piece.
+ * @param[in] y Row of the piece.
+ * @param[in] p Type of the piece.
+ * @param[in] tempList Pointer to the pieceList pointer on which we are going to add a piece.
+ * @return false if there already is a piece which given coordinates on the list,
+ * @return true otherwise.
+ **/
+static bool addPiece(int x, int y, PieceList** tempList, enum PieceType p) {
 	while (*tempList != NULL) {
 		if ((*tempList)->firstPiece.x == x && (*tempList)->firstPiece.y == y) {
 			return false;
@@ -203,31 +314,36 @@ bool addPiece(int x, int y, PieceList** tempList, enum PieceType p) {
 	return true;
 }
 
-bool produce(int x1, int y1, int x2, int y2, enum PieceType p) {
+/**
+ * Checks correctness of the data and produces a new piece on the given position.
+ * @return false if the given input is not valid,
+ * @return true otherwise.
+ **/
+static bool produce(int x1, int y1, int x2, int y2, enum PieceType p) {
 	if (incorrectMove(x1, y1, x2, y2)) {
-		return 0;
+		return false;
 	}
 	
 	PieceList** player1 = setPlayer1();
 	PieceList** player2 = setPlayer2();
 	PieceList** pieceFrom = pointerToPosition(x1, y1, player1);
 	if (pieceFrom == NULL) {
-		return 0;
+		return false;
 	}
 	if (pointerToPosition(x2, y2, player2) != NULL) {
-		return 0;
+		return false;
 	}
 	if ((*pieceFrom)->firstPiece.type != PEASANT || (*pieceFrom)->firstPiece.lastMove < turnsLeft + 3) {
-		return 0;
+		return false;
 	}
 	if (!addPiece(x2, y2, player1, p)) {
-		return 0;
+		return false;
 	}
 	
 	(*pieceFrom)->firstPiece.lastMove = turnsLeft;
 	putTopleft(x2, y2, p, currentPlayer);
 	
-	return 1;
+	return true;
 }
 
 /* REQUIRED FUNCTIONS */	
@@ -273,6 +389,7 @@ void startGame() {
 
 void endGame() {
 	clearAll();
+	
 	if (winner == 3 || winner == 0) {
 			fprintf(stderr, "draw\n");
 	} else {
@@ -286,6 +403,7 @@ void printTopleft() {
 	if (10 < k) {
 		k = 10;
 	}
+	
 	for (int i = 1; i <= k; i++) {
 		for (int j = 1; j <= k; j++) {
 			printf("%c", topleft[i][j]);
@@ -323,6 +441,7 @@ bool init(int n, int k, int p, int x1, int y1, int x2, int y2) {
 		initValue[4] = y1;
 		initValue[5] = x2;
 		initValue[6] = y2;
+		
 		PieceList** temp1 = &firstPlayer;
 		PieceList** temp2 = &secondPlayer;
 		while ((*temp1) != NULL) {
@@ -347,22 +466,22 @@ bool init(int n, int k, int p, int x1, int y1, int x2, int y2) {
 
 bool move(int x1, int y1, int x2, int y2) {
 	if (incorrectMove(x1, y1, x2, y2)) {
-		return 0;
+		return false;
 	}
 	
 	PieceList** player1 = setPlayer1();
 	PieceList** player2 = setPlayer2();
 	PieceList** pieceFrom = pointerToPosition(x1, y1, player1);
 	if (pieceFrom == NULL) {
-		return 0;
+		return false;
 	}
 	if (pointerToPosition(x2, y2, player1) != NULL) {
-		return 0;
+		return false;
 	}
 	PieceList** pieceTo = pointerToPosition(x2, y2, player2);
 	
 	if ((*pieceFrom)->firstPiece.lastMove == turnsLeft) {
-		return 0;
+		return false;
 	}
 	
 	clearPosition(x1, y1);
@@ -371,8 +490,9 @@ bool move(int x1, int y1, int x2, int y2) {
 		(*pieceFrom)->firstPiece.x = x2;
 		(*pieceFrom)->firstPiece.y = y2;
 		putTopleft(x2, y2, (*pieceFrom)->firstPiece.type, (*pieceFrom)->firstPiece.owner);
-		return 1;
+		return true;
 	}
+	
 	PieceList* temp = (*pieceFrom)->next;
 	PieceList* temp2 = (*pieceTo)->next;
 	switch (fight((*pieceFrom)->firstPiece, (*pieceTo)->firstPiece)) {
@@ -394,8 +514,9 @@ bool move(int x1, int y1, int x2, int y2) {
 			clearPosition(x2, y2);
 			free(*pieceTo);
 			*pieceTo = temp2;
+			break;
 	}
-	return 1;
+	return true;
 }
 
 bool produceKnight(int x1, int y1, int x2, int y2) {

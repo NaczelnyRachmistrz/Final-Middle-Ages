@@ -7,4 +7,3 @@ for f in ${1}/*.in; do
 	done;
 rm temp.out;
 rm tempErr.out;
-make clean;

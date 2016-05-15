@@ -6,9 +6,13 @@
 #ifndef PARSE_H
 #define PARSE_H
 
+
+/**
+ * Data structure with parsed input line.
+ **/
 typedef struct defCommand {
-    char name[16];
-    int data[7];
+    char name[16]; /**< Type of command. */
+    int data[7]; /**< Points required with a command. */
 } Command;
 
 

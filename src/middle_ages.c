@@ -1,16 +1,25 @@
+ /** @file
+    Main game file.
+
+ */
 #include <stdio.h>
 #include <string.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include "parse.h"
 #include "engine.h"
 
+/**
+ * Prints (into stder) error message, terminates the game and frees memory if the input data is incorrect
+ **/
 static void putError() {
 	clearAll();
 	fprintf(stderr, "input error\n");
 	return;
 }
 
+/**
+ * Main function of the game.
+ **/
 int main() {
 
     startGame();
@@ -41,12 +50,11 @@ int main() {
 	}
 	
     while (1) {
-		
 		if (checkWinner())  {
 			break;
 		}
-		newCommand = parseCommand();
 		
+		newCommand = parseCommand();
         if (strcmp(newCommand.name, "MOVE") == 0) {
 			if (!move(newCommand.data[0],
 				newCommand.data[1],
