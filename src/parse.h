@@ -6,15 +6,15 @@
 #ifndef PARSE_H
 #define PARSE_H
 
-typedef struct def_command {
+typedef struct defCommand {
     char name[16];
     int data[7];
-} command;
+} Command;
 
 
 /** Reads a command.
-  Returns command with data points using 'command' structure.
+  Returns command with data points using 'Command' structure.
   */
-command* parse_command();
+Command parseCommand();
 
 #endif /* PARSE_H */
