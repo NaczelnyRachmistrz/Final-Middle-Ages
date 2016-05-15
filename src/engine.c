@@ -80,7 +80,6 @@ void clearAll() {
 	return;
 }
 
-
 /**
  * Updates topleft corner of the board.
  * @param[in] x Column of the position.
@@ -120,7 +119,7 @@ static void clearPosition(int x, int y) {
 }
 
 /**
- * Return |a-b|.
+ * Returns |a-b|.
  **/
 static int dist(int a, int b) {
 	if (a > b) {
@@ -156,7 +155,7 @@ bool checkWinner() {
 }
 
 /** 
- * Checks whick piece wins the battle. Additionally, sets the winner if the king is beaten.
+ * Checks which piece wins the battle. Additionally, sets the winner if the king is beaten.
  * @param[in] p1 First piece.
  * @param[in] p2 Second piece.
  * @return 1 if the first piece wins,
@@ -258,7 +257,7 @@ static PieceList** setPlayer1() {
 }
 
 /**
- * Return pointer to the piece list of the player who is waiting for his move.
+ * Returns pointer to the piece list of the player who is waiting for his move.
  **/
 static PieceList** setPlayer2() {
 	if (currentPlayer == 1) {
@@ -292,7 +291,7 @@ static PieceList** pointerToPosition(int x, int y, PieceList** tempList) {
  * @param[in] y Row of the piece.
  * @param[in] p Type of the piece.
  * @param[in] tempList Pointer to the pieceList pointer on which we are going to add a piece.
- * @return false if there already is a piece which given coordinates on the list,
+ * @return false if there already is a piece with given coordinates on the list,
  * @return true otherwise.
  **/
 static bool addPiece(int x, int y, PieceList** tempList, enum PieceType p) {

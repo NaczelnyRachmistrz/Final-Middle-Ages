@@ -9,7 +9,7 @@
 #include "engine.h"
 
 /**
- * Prints (into stder) error message, terminates the game and frees memory if the input data is incorrect
+ * Prints (into stder) error message, terminates the game and frees memory if the input data is incorrect.
  **/
 static void putError() {
 	clearAll();
