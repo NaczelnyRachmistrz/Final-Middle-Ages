@@ -13,8 +13,11 @@ void startGame();
 
 /**
  * Frees memory and prints (into stderr) a winner. Needed after finishing game.
+ * @return 0 if the game is won
+ * @return 1 if the game is drawn
+ * @return 2 if the game is lost
  */
-void endGame();
+int endGame();
 
 /**
  * Initializes a game with size of a board, number of rounds and positions of kings.
@@ -71,15 +74,9 @@ bool producePeasant(int x1, int y1, int x2, int y2);
 bool endTurn();
 
 /**
- * Prints (into stdout) top-left corner of the board of size m x m where m = min(n,10).
- **/
-void printTopleft();
-
-/**
  * Frees the lists of pieces of both players.
  **/
 void clearAll();
-
 
 /**
  * Checks the winner.
@@ -87,5 +84,15 @@ void clearAll();
  * @return false otherwise.
  **/
 bool checkWinner();
+
+/**
+ * Checks the ID of a current player.
+ **/
+int checkCurrentPlayer();
+
+/**
+ * Checks the ID given by script.
+ **/
+int checkMyID();
 
 #endif /* ENGINE_H */

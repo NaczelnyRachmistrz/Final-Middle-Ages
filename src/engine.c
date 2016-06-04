@@ -37,10 +37,12 @@ typedef struct pieceList {
  * List of first player's pieces.
  **/
 	PieceList* firstPlayer;
+
 /**
  * List of second player's pieces.
  **/
 	PieceList* secondPlayer;
+
 /**
  * Size of the board.
  **/
@@ -49,10 +51,11 @@ typedef struct pieceList {
  * Number of turns left.
  **/
 	int turnsLeft;
+
 /**
- * Visualization of board's topleft corner.
+ * ID given by the script.
  **/
-	char topleft[11][11];
+	int MyID;
 	
 /* AUXILIARY FUNCTIONS */
 
@@ -81,44 +84,6 @@ void clearAll() {
 }
 
 /**
- * Updates topleft corner of the board.
- * @param[in] x Column of the position.
- * @param[in] y Row of the positon.
- * @param[in] p Kind of pawn to be set on the given position.
- * @param[in] pl Owner of the pawn.
- **/
-static void putTopleft(int x, int y, enum PieceType p, int pl) {
-	if (x > 10 || y > 10) {
-		return;
-	}
-	
-	switch ((int) p) {
-		case KING:
-			topleft[y][x] = (pl == 1) ?'K':'k';
- 			break;
-		case KNIGHT:
-			topleft[y][x] = (pl == 1) ?'R':'r';
-			break;
-		case PEASANT:
-			topleft[y][x] = (pl == 1) ?'C':'c';
-			break;
-		}
-	return;
-}
-
-/**
- * Clears a position from the topleft corner of the board
- * @param[in] x Column of the position.
- * @param[in] y Row of the position.
- **/
-static void clearPosition(int x, int y) {
-	if (x > 10 || y > 10) {
-		return;
-	}
-	topleft[y][x] = '.';
-}
-
-/**
  * Returns |a-b|.
  **/
 static int dist(int a, int b) {
@@ -132,23 +97,30 @@ static int dist(int a, int b) {
  * ID of current player.
  **/
 static int currentPlayer;
+
 /**
  * Variable, winner = 0 when game is not over yet, winner = 3 when game is drawn,
  * ID of the winner otherwise.
  **/
 static int winner = 0;
+
 /**
  * Variable, counts the number of turns.
  **/
 static int endTurnCounter = 0;
+
 /**
  * Checks the number of INIT commands.
  **/
 static int initCounter = 0;
-/**
- * Array with correct INIT data.
- **/
-static int initValue[7];
+
+int checkCurrentPlayer() {
+	return currentPlayer;
+}
+
+int checkMyID() {
+	return MyID;
+}
 
 bool checkWinner() {
 	return (winner != 0);
@@ -159,7 +131,7 @@ bool checkWinner() {
  * @param[in] p1 First piece.
  * @param[in] p2 Second piece.
  * @return 1 if the first piece wins,
- * @return 2 if the first second piece wins,
+ * @return 2 if the second piece wins,
  * @return 3 if both pieces die.
  **/
 static int fight(Piece p1, Piece p2) {
@@ -188,7 +160,7 @@ static int fight(Piece p1, Piece p2) {
 }
 
 /**
- * Check if the INIT coordinates are valid.
+ * Checks if the INIT coordinates are valid.
  **/
 static bool checkPositions(int x1, int x2, int y1, int y2) {
 	bool ret = true;
@@ -228,21 +200,6 @@ static bool incorrectMove(int x1, int y1, int x2, int y2) {
 		return true;
 	}
 	return false;
-}
-
-/**
- * Function checks, if the second INIT command is valid.
- **/
-static bool checkInitValues(int n, int k, int p, int x1, int y1, int x2, int y2) {
-	bool ret = true;
-	ret &= (n == initValue[0]);
-	ret &= (k == initValue[1]);
-	ret &= (p == initValue[2]);
-	ret &= (x1 == initValue[3]);
-	ret &= (y1 == initValue[4]);
-	ret &= (x2 == initValue[5]);
-	ret &= (y2 == initValue[6]);
-	return ret;
 }
 
 /**
@@ -340,7 +297,6 @@ static bool produce(int x1, int y1, int x2, int y2, enum PieceType p) {
 	}
 	
 	(*pieceFrom)->firstPiece.lastMove = turnsLeft;
-	putTopleft(x2, y2, p, currentPlayer);
 	
 	return true;
 }
@@ -378,38 +334,23 @@ void startGame() {
 	(*temp)->next = NULL;
 	(*temp2)->next = NULL;
 	
-	for (int i = 1; i <= 10; i++) {
-		for (int j = 1; j <= 10; j++) {
-			topleft[i][j] = '.';
-		}
-	}
 	return;
 }
 
-void endGame() {
+int endGame() {
 	clearAll();
 	
 	if (winner == 3 || winner == 0) {
 			fprintf(stderr, "draw\n");
+			return 1;
 	} else {
 		fprintf(stderr, "player %d won\n", winner);
 	}
-	return;
-}
-
-void printTopleft() {
-	int k = boardSize;
-	if (10 < k) {
-		k = 10;
-	}
 	
-	for (int i = 1; i <= k; i++) {
-		for (int j = 1; j <= k; j++) {
-			printf("%c", topleft[i][j]);
-		}
-		printf("\n");
+	if (MyID == winner) {
+		return 0;
 	}
-	printf("\n");
+	return 2;
 }
 
 bool init(int n, int k, int p, int x1, int y1, int x2, int y2) {
@@ -418,28 +359,22 @@ bool init(int n, int k, int p, int x1, int y1, int x2, int y2) {
 		if (n < 9) {
 			return false;
 		}
-		initValue[0] = n;
 		boardSize = n;
 		if (k < 1) {
 			return false;
 		}
-		initValue[1] = k;
 		turnsLeft = k-1;
 		if (p != 1 && p != 2) {
 			return false;
 		}
 		currentPlayer = 1;
-		initValue[2] = 3 - p;
+		MyID = p;
 		if (dist(x1, x2) < 8 && dist(y1, y2) < 8) {
 			return false;
 		}
 		if (!checkPositions(x1, x2, y1, y2)) {
 			return false;
 		}
-		initValue[3] = x1;
-		initValue[4] = y1;
-		initValue[5] = x2;
-		initValue[6] = y2;
 		
 		PieceList** temp1 = &firstPlayer;
 		PieceList** temp2 = &secondPlayer;
@@ -450,8 +385,6 @@ bool init(int n, int k, int p, int x1, int y1, int x2, int y2) {
 			(*temp2)->firstPiece.x = x2;
 			(*temp2)->firstPiece.y = y2;
 			(*temp2)->firstPiece.lastMove = k;
-			putTopleft(x1, y1, (*temp1)->firstPiece.type, 1);
-			putTopleft(x2, y2, (*temp2)->firstPiece.type, 2);
 			temp1 = &(*temp1)->next;
 			temp2 = &(*temp2)->next;
 			x1++;
@@ -459,7 +392,7 @@ bool init(int n, int k, int p, int x1, int y1, int x2, int y2) {
 		}
 		return true;
 	} else {
-		return checkInitValues(n, k, p, x1, y1, x2, y2);
+		return false;
 	}
 }
 
@@ -482,13 +415,11 @@ bool move(int x1, int y1, int x2, int y2) {
 	if ((*pieceFrom)->firstPiece.lastMove == turnsLeft) {
 		return false;
 	}
-	
-	clearPosition(x1, y1);
+
 	if (pieceTo == NULL) {
 		(*pieceFrom)->firstPiece.lastMove = turnsLeft;
 		(*pieceFrom)->firstPiece.x = x2;
 		(*pieceFrom)->firstPiece.y = y2;
-		putTopleft(x2, y2, (*pieceFrom)->firstPiece.type, (*pieceFrom)->firstPiece.owner);
 		return true;
 	}
 	
@@ -499,7 +430,6 @@ bool move(int x1, int y1, int x2, int y2) {
 			(*pieceFrom)->firstPiece.lastMove = turnsLeft;
 			(*pieceFrom)->firstPiece.x = x2;
 			(*pieceFrom)->firstPiece.y = y2;
-			putTopleft(x2, y2, (*pieceFrom)->firstPiece.type, (*pieceFrom)->firstPiece.owner);
 			free(*pieceTo);
 			*pieceTo = temp2;
 			break;
@@ -510,7 +440,6 @@ bool move(int x1, int y1, int x2, int y2) {
 		case 3:
 			free(*pieceFrom);
 			*pieceFrom = temp;
-			clearPosition(x2, y2);
 			free(*pieceTo);
 			*pieceTo = temp2;
 			break;

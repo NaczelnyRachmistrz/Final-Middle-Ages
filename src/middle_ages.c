@@ -1,6 +1,10 @@
  /** @file
-    Main game file.
-
+    Modified version of game engine. Simple AI programme. It checks the ID given by the script and, 
+    * when it is time for a move, prints END_TURN message.
+    * @return 0 if the game is won
+    * @return 1 if the game is drawn
+    * @return 2 if the game is lost
+    * @return 42 if the input is incorrect
  */
 #include <stdio.h>
 #include <string.h>
@@ -25,33 +29,38 @@ int main() {
     startGame();
 
     Command newCommand;
-    
-    int begin = 2;
     bool initCorrect;
-    while (begin-- > 0) {
-		newCommand = parseCommand();
-		if (strcmp(newCommand.name, "INIT") == 0) {
-            initCorrect = init(newCommand.data[0],
-                newCommand.data[1],
-                newCommand.data[2],
-                newCommand.data[3],
-                newCommand.data[4],
-                newCommand.data[5],
-                newCommand.data[6]);
-                if (!initCorrect) {
-					putError();
-					return 42;
-				}
-				printTopleft();
-		} else {
+    
+	newCommand = parseCommand();
+	if (strcmp(newCommand.name, "INIT") == 0) {
+		initCorrect = init(newCommand.data[0],
+		newCommand.data[1],
+        newCommand.data[2],
+        newCommand.data[3],
+        newCommand.data[4],
+        newCommand.data[5],
+        newCommand.data[6]);
+        if (!initCorrect) {
 			putError();
-			return 42;			
+			return 42;
 		}
+	} else {
+		putError();
+		return 42;			
 	}
 	
     while (1) {
 		if (checkWinner())  {
 			break;
+		}
+		
+		if (checkCurrentPlayer() == checkMyID()) {
+			printf("END_TURN\n");
+			fflush(stdout);
+			if (endTurn()) {
+				break;
+			}
+			continue;
 		}
 		
 		newCommand = parseCommand();
@@ -88,11 +97,7 @@ int main() {
 			putError();
 			return 42;
 		}
-
-        printTopleft();
     }
 
-    endGame();
-
-    return 0;
+    return endGame();
 }
