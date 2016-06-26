@@ -16,9 +16,15 @@ typedef struct defCommand {
 } Command;
 
 
-/** Reads a command.
-  Returns command with data points using 'Command' structure.
-  */
-Command parseCommand();
+/** 
+ * Reads a command.
+ **/
+void readCommand(char* inputLine);
 
+/**
+ * Parses a command and returns
+ * a structure with data points.
+ **/
+Command parseCommand();
+ 
 #endif /* PARSE_H */

@@ -1,6 +1,6 @@
  /** @file
-    Modified version of game engine. Simple AI programme. It checks the ID given by the script and, 
-    * when it is time for a move, prints END_TURN message.
+    Modified version of game engine. An AI programme, able to win with some simple strategies. Knights move to the closest 
+    * enemy, peasant initially produces a second peasant and then, if it is possible, new knights.cd 
     * @return 0 if the game is won
     * @return 1 if the game is drawn
     * @return 2 if the game is lost
@@ -11,9 +11,9 @@
 #include <stdlib.h>
 #include "parse.h"
 #include "engine.h"
-
+#include "utils.h"
 /**
- * Prints (into stder) error message, terminates the game and frees memory if the input data is incorrect.
+ * Prints (into stderr) error message, terminates the game and frees memory if the input data is incorrect.
  **/
 static void putError() {
 	clearAll();
@@ -29,9 +29,11 @@ int main() {
     startGame();
 
     Command newCommand;
+    char newLine[100];
     bool initCorrect;
     
-	newCommand = parseCommand();
+    readCommand(newLine);
+	newCommand = parseCommand(newLine);
 	if (strcmp(newCommand.name, "INIT") == 0) {
 		initCorrect = init(newCommand.data[0],
 		newCommand.data[1],
@@ -50,11 +52,18 @@ int main() {
 	}
 	
     while (1) {
+		for (int i = 0; i < 100; i++) {
+			newLine[i] = '\0';
+		}
 		if (checkWinner())  {
 			break;
 		}
 		
 		if (checkCurrentPlayer() == checkMyID()) {
+			makeMoves();
+			if (checkWinner()) {
+				break;
+			}
 			printf("END_TURN\n");
 			fflush(stdout);
 			if (endTurn()) {
@@ -62,13 +71,13 @@ int main() {
 			}
 			continue;
 		}
-		
-		newCommand = parseCommand();
+		readCommand(newLine);
+		newCommand = parseCommand(newLine);
         if (strcmp(newCommand.name, "MOVE") == 0) {
-			if (!move(newCommand.data[0],
+			if (move(newCommand.data[0],
 				newCommand.data[1],
 				newCommand.data[2],
-				newCommand.data[3])) {
+				newCommand.data[3]) == 0) {
 					putError();
 					return 42;
 				}

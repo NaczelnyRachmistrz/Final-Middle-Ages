@@ -291,6 +291,7 @@ else
 						if (kill -0 $ai_pid 2>/dev/null >/dev/null); then
 							read -t 1.5 line <&${wait_out}
 							if (( $? == 0 )); then
+								echo "$line"
 								echo "$line" >&${wait_in}
 							fi
 						fi						
@@ -311,12 +312,14 @@ else
 						fi
 					fi					
 				done
+				echo "$line"
 				echo "$line" >&${curr_in}				
 			else
 				read -t 0.5 line <&${curr_out}
 				if (( $? != 0 )); then
 					break
 				fi
+				echo "$line"
 				echo "$line" >&${curr_in}
 			fi
 			if [ "$line" == "END_TURN" ]; then

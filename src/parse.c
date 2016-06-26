@@ -16,6 +16,10 @@ static bool checkInputCorrectness(char* input) {
 		return false;
 	}
 	for (int i = 1; i < 100; i++) {
+		if (input[i] == '\0') {
+			break;
+		}
+		
 		if (input[i] == '\n') {
 			if (input[i-1] == ' ') {
 				return false;
@@ -33,12 +37,18 @@ static bool checkInputCorrectness(char* input) {
 	return false;
 }
 
-Command parseCommand() {
+void readCommand(char* inputLine) {
+	if (fgets(inputLine, 100, stdin) == NULL) {
+		inputLine = NULL;
+	}
+	return;
+}
+
+Command parseCommand(char* line) {
 	Command ret;
-	char line[100];
 	int temp = 0;
 	int temp2;
-	if (fgets(line, 100, stdin) == NULL) {
+	if (line == NULL) {
 		strcpy(ret.name, "WRONG_INPUT");
 		return ret;
 	}
@@ -67,7 +77,7 @@ Command parseCommand() {
 		}
 	} else {
 		if (!checkInputCorrectness(line) || sscanf(line, "%*s%*d%*d%*d%*d%d", &temp2) > 0) {
-			strcpy(ret.name, "WRONG INPUT");
+			strcpy(ret.name, "WRONG_INPUT");
 		}
 	}
 	return ret;

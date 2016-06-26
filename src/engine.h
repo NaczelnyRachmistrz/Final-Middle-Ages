@@ -39,10 +39,11 @@ bool init(int n, int k, int p, int x1, int y1, int x2, int y2);
  * @param[in] y1 Row number before a move.
  * @param[in] x2 Column number after a move.
  * @param[in] y2 Row number after a move.
- * @return false The input data is not valid.
- * @return true The input data is valid.
+ * @return 0 The input data is not valid.
+ * @return 1 The input data is valid.
+ * @return 2 The input data is valid and there is a fight.
  */
-bool move(int x1, int y1, int x2, int y2);
+int move(int x1, int y1, int x2, int y2);
 
 /**
  * Produces a new knight.
@@ -94,5 +95,12 @@ int checkCurrentPlayer();
  * Checks the ID given by script.
  **/
 int checkMyID();
+
+/**
+ * Moves pawns using strategy described in middle_ages.c.
+ **/
+void makeMoves();
+
+struct pieceList;
 
 #endif /* ENGINE_H */

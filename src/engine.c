@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "engine.h"
+#include "utils.h"
 /* DATA STRUCTURE */
 
 /**
@@ -18,8 +19,8 @@ enum PieceType {KING, KNIGHT, PEASANT};
 typedef struct piece {
 	enum PieceType type; /**< Type of the piece. */
 	int owner; /**< ID of a player. */
-	int x; /**< Column of a pawn */
-	int y; /**< Row of a pawn */
+	int x; /**< Column of a pawn. */
+	int y; /**< Row of a pawn. */
 	int lastMove; /**< Number of turns left when the last move was done. */
 } Piece;
 
@@ -30,6 +31,14 @@ typedef struct pieceList {
 	Piece firstPiece; /**< First piece on the list */
 	struct pieceList* next; /**< Pointer to the list tail. */
 } PieceList;
+
+/**
+ * Simple structure representing a point;
+ **/
+typedef struct pair {
+	int x; /**< Column coordinate. */
+	int y; /**< Row coordinate. */
+} Pair;
 
 /* REQUIRED DATA */
 
@@ -56,6 +65,34 @@ typedef struct pieceList {
  * ID given by the script.
  **/
 	int MyID;
+
+/**
+ * Coordinates of the rival's king.
+ **/
+	Pair foeKing;
+	
+/**
+ * Coordinates of the AI's king.
+ **/
+	Pair myKing;
+
+/* Prefered moves */
+
+static Pair upLeft[6] = {{-1, -1}, {-1, 0}, {0, -1}, {-1, 1}, {1, -1}, {0, 0}};
+
+static Pair upRight[6] = {{1, -1}, {1, 0}, {0, -1}, {1, 1}, {-1, -1}, {0, 0}};
+
+static Pair downLeft[6] = {{-1, 1}, {-1, 0}, {0, 1}, {-1, -1}, {1, 1}, {0, 0}};
+
+static Pair downRight[6] = {{1, 1}, {1, 0}, {0, 1}, {-1, 1}, {1, -1}, {0, 0}};
+
+static Pair up[6] = {{0, -1}, {-1, -1}, {1, -1}, {1, 0}, {-1, 0}, {0, 0}};
+
+static Pair down[6] = {{0, 1}, {-1, 1}, {1, 1}, {1, 0}, {-1, 0}, {0, 0}};
+
+static Pair left[6] = {{-1, 0}, {-1, -1}, {-1, 1}, {0, 1}, {0, -1}, {0, 0}};
+
+static Pair right[6] = {{1, 0}, {1, -1}, {1, 1}, {0, -1}, {0, 1}, {0, 0}};	
 	
 /* AUXILIARY FUNCTIONS */
 
@@ -94,6 +131,16 @@ static int dist(int a, int b) {
 }
 
 /**
+ *  Return max(a, b);
+ **/
+static int max(int a, int b) {
+	if (a > b) {
+		return a;
+	}
+	return b;
+}
+
+/**
  * ID of current player.
  **/
 static int currentPlayer;
@@ -121,6 +168,12 @@ int checkCurrentPlayer() {
 int checkMyID() {
 	return MyID;
 }
+
+/**
+ * Checks if there are two peasants produced, in order to determinate
+ * the move of a peasant.
+ **/
+static bool secondPeasantProduced = false;
 
 bool checkWinner() {
 	return (winner != 0);
@@ -300,10 +353,170 @@ static bool produce(int x1, int y1, int x2, int y2, enum PieceType p) {
 	
 	return true;
 }
+/**
+ * Chooses a field where a piece should be moved and returns coordinates.
+ * @param[in] currentPiece Piece to be moved.
+ * @param[in] x The value of currentPiece.x decreased by x coordinate of the nearest rival's pawn.
+ * @param[in] y The value of currentPiece.y decreased by y coordinate of the nearest rival's pawn.
+**/
+Pair choosePosition(Piece currentPiece, int x, int y) {
+	Pair* temp;
+	Pair ret;
+	if (x < 0 && y < 0) {
+		temp = downRight;
+	} else if (x < 0 && y == 0) {
+		temp = right;
+	} else if (x < 0 && y > 0) {
+		temp = upRight;
+	} else if (x == 0 && y < 0) {
+		temp = down;
+	} else if (x == 0 && y > 0) {
+		temp = up;
+	} else if (y < 0) {
+		temp = downLeft;
+	} else if (y == 0) {
+		temp = left;
+	} else {
+		temp = upLeft;
+	}
+	
+	int counter = 0;
+	while (1) {
+		if (temp[counter].x == 0 && temp[counter].y == 0) {
+			ret.x = currentPiece.x;
+			ret.y = currentPiece.y;
+			break;
+		}
+		
+		if (wrongPosition(currentPiece.x+temp[counter].x,
+			currentPiece.y+temp[counter].y, 1, 1)) {
+			counter++;
+			continue;
+		}
+		
+		PieceList** pointer = pointerToPosition(currentPiece.x + temp[counter].x,
+			currentPiece.y + temp[counter].y, setPlayer1());
+		if (pointer == NULL) {
+			if (currentPiece.type == PEASANT) {
+				PieceList** pointer2 = pointerToPosition(currentPiece.x + temp[counter].x,
+				currentPiece.y + temp[counter].y, setPlayer2());
+				if (pointer2 != NULL) {
+						counter++;
+						continue;
+				}
+			}
+			ret.x = currentPiece.x + temp[counter].x;
+			ret.y = currentPiece.y + temp[counter].y;
+			break;			
+		}
+		counter++;
+	}
+	return ret;
+}
+
+/**
+ * Return the coordinates of the rival's nearest pawn in the maximum metric. If there are
+ * more than one such pawns, returns the coordinates of the one which is the closest
+ * to my king.
+ * @param[in] x Column of the piece.
+ * #param[in] y Row of the piece.
+ **/
+Pair findNearestFoe(int x, int y) {
+	int min = 2*(boardSize - 1);
+	int minKing = 2*(boardSize - 1);
+	int curr, currKing;
+	Pair ret;
+	PieceList* player2 = *setPlayer2();
+	
+	while (player2 != NULL) {
+		curr = max(dist(x, (player2->firstPiece).x),
+			dist(y, (player2->firstPiece).y));
+		currKing = max(dist(x, (player2->firstPiece).x),
+			dist(y, (player2->firstPiece).y));
+		if (curr < min || (currKing < minKing && curr == min)) {
+			min = curr;
+			minKing = currKing;
+			ret.x = (player2->firstPiece).x;
+			ret.y = (player2->firstPiece).y;
+		} 
+		player2 = player2->next;
+	}
+	
+	return ret;
+}
+
+/**
+ * Moves a knight.
+ * @param[in] currentPiece Piece to be moved;
+ **/
+void makeKnightMove(Piece currentPiece) {
+	Pair nearestFoe = findNearestFoe(currentPiece.x, currentPiece.y);
+	int x = currentPiece.x - nearestFoe.x;
+	int y = currentPiece.y - nearestFoe.y;
+	Pair temp = choosePosition(currentPiece, x, y);
+	if (temp.x == currentPiece.x && temp.y == currentPiece.y) {
+		return;
+	}
+	printf("MOVE %d %d %d %d\n", currentPiece.x, currentPiece.y,
+		temp.x, temp.y);
+	move(currentPiece.x, currentPiece.y, temp.x, temp.y);
+	return;
+}
+
+/**
+ * Moves a peasant.
+ * @param[in] currentPiece Piece to be moved.
+ **/
+void makePeasantMove(Piece currentPiece) {
+	if (currentPiece.lastMove < turnsLeft + 3) {
+		return;
+	}
+
+	int x = currentPiece.x - foeKing.x;
+	int y = currentPiece.y - foeKing.y;
+	Pair temp = choosePosition(currentPiece, x, y);
+	if (temp.x == currentPiece.x && temp.y == currentPiece.y) {
+			return;
+	}
+	
+	if (!secondPeasantProduced) {
+		secondPeasantProduced = true;
+		printf("PRODUCE_PEASANT %d %d %d %d\n", currentPiece.x, currentPiece.y,
+			temp.x, temp.y);
+		fflush(stdout);
+		producePeasant(currentPiece.x, currentPiece.y, temp.x, temp.y);
+	} else {
+		printf("PRODUCE_KNIGHT %d %d %d %d\n", currentPiece.x, currentPiece.y,
+			temp.x, temp.y);
+		fflush(stdout);
+		produceKnight(currentPiece.x, currentPiece.y, temp.x, temp.y);
+	}
+	return;
+}
+
+/**
+ * Makes a move of a given piece.
+ * @param[in] currentPiece Piece to be moved.
+ **/
+void makeMove(Piece currentPiece) {
+	switch ((int) currentPiece.type) {
+		case KING:
+			break;
+		case PEASANT:
+			makePeasantMove(currentPiece);
+			break;
+		case KNIGHT:
+			makeKnightMove(currentPiece);
+			break;
+	}
+}
 
 /* REQUIRED FUNCTIONS */	
 	
 void startGame() {
+	initCounter = 0;
+	winner = 0;
+	endTurnCounter = 0;
 	firstPlayer = (PieceList*) malloc(sizeof(PieceList));
 	secondPlayer = (PieceList*) malloc(sizeof(PieceList));
 	firstPlayer->firstPiece.type = KING;
@@ -369,6 +582,17 @@ bool init(int n, int k, int p, int x1, int y1, int x2, int y2) {
 		}
 		currentPlayer = 1;
 		MyID = p;
+		if (p == 1) {
+			foeKing.x = x2;
+			foeKing.y = y2;
+			myKing.x = x1;
+			myKing.y = y1;
+		} else {
+			foeKing.x = x1;
+			foeKing.y = y1;
+			myKing.x = x2;
+			myKing.y = y2;
+		}
 		if (dist(x1, x2) < 8 && dist(y1, y2) < 8) {
 			return false;
 		}
@@ -396,31 +620,31 @@ bool init(int n, int k, int p, int x1, int y1, int x2, int y2) {
 	}
 }
 
-bool move(int x1, int y1, int x2, int y2) {
+int move(int x1, int y1, int x2, int y2) {
 	if (incorrectMove(x1, y1, x2, y2)) {
-		return false;
+		return 0;
 	}
 	
 	PieceList** player1 = setPlayer1();
 	PieceList** player2 = setPlayer2();
 	PieceList** pieceFrom = pointerToPosition(x1, y1, player1);
 	if (pieceFrom == NULL) {
-		return false;
+		return 0;
 	}
 	if (pointerToPosition(x2, y2, player1) != NULL) {
-		return false;
+		return 0;
 	}
 	PieceList** pieceTo = pointerToPosition(x2, y2, player2);
 	
 	if ((*pieceFrom)->firstPiece.lastMove == turnsLeft) {
-		return false;
+		return 0;
 	}
 
 	if (pieceTo == NULL) {
 		(*pieceFrom)->firstPiece.lastMove = turnsLeft;
 		(*pieceFrom)->firstPiece.x = x2;
 		(*pieceFrom)->firstPiece.y = y2;
-		return true;
+		return 1;
 	}
 	
 	PieceList* temp = (*pieceFrom)->next;
@@ -444,7 +668,7 @@ bool move(int x1, int y1, int x2, int y2) {
 			*pieceTo = temp2;
 			break;
 	}
-	return true;
+	return 2;
 }
 
 bool produceKnight(int x1, int y1, int x2, int y2) {
@@ -464,4 +688,17 @@ bool endTurn() {
 		currentPlayer = 2;
 	}
 	return (turnsLeft < 0);
+}
+
+void makeMoves() {
+	PieceList* player1 = *setPlayer1();
+	
+	while (player1 != NULL) {		
+		makeMove(player1->firstPiece);
+		if (winner != 0) {
+			return;
+		}
+		player1 = player1->next;	
+	}
+	return;
 }

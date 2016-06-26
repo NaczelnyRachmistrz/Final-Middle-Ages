@@ -11,6 +11,14 @@ else (DEBUG)
     set(CMAKE_BUILD_TYPE RELEASE)
 endif (DEBUG)
 
+find_library (CMOCKA cmocka)
+
+if (NOT CMOCKA)
+    message (FATAL_ERROR "Could not find cmocka.")
+endif ()
+
+enable_testing ()
+
 # ustawiamy flagi kompilacji w wersji debug i release
 set(CMAKE_C_FLAGS_DEBUG "-std=gnu99 -Wall -pedantic -g")
 set(CMAKE_C_FLAGS_RELEASE "-std=gnu99 -O3")
@@ -23,6 +31,15 @@ set(SOURCE_FILES
         src/parse.h)
 
 add_executable(middle_ages ${SOURCE_FILES})
+
+add_executable (middle_ages_test src/middle_ages_test.c ${SOURCE_FILES})
+set_target_properties (
+    middle_ages_test
+    PROPERTIES
+    COMPILE_DEFINITIONS UNIT_TESTING=1
+    COMPILE_FLAGS "-Wall -pedantic -g")
+target_link_libraries (middle_ages_test ${CMOCKA})
+add_test (middle_ages_test ${CMAKE_CURRENT_BINARY_DIR}/middle_ages_test)
 
 # dodajemy obsługę Doxygena: sprawdzamy, czy jest zainstalowany i jeśli tak:
 find_package(Doxygen)
